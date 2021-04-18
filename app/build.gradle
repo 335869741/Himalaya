@@ -15,10 +15,15 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        ndk {
+            // 设置支持的SO库架构
+            abiFilters 'armeabi' /*,'arm64-v8a' , 'x86'*///, 'armeabi-v7a', 'x86_64', 'arm64-v8a'
+        }
     }
 
     buildTypes {
         release {
+            debuggable true
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
@@ -29,6 +34,37 @@ android {
     }
     kotlinOptions {
         jvmTarget = '1.8'
+    }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+
+        // Move the tests to tests/java, tests/res, etc...
+
+        // Move the build types to build-types/<type>
+        // For instance, build-types/debug/java, build-types/debug/AndroidManifest.xml, ...
+        // This moves them out of them default location under src/<type>/... which would
+        // conflict with src/ being used by the main source set.
+        // Adding new build types or product flavors should be accompanied
+        // by a similar customization.
+        debug.setRoot('build-types/debug')
+        release.setRoot('build-types/release')
+    }
+    lintOptions {
+        // set to true to turn off analysis progress reporting by lint
+        quiet true
+        // if true, stop the gradle build if errors are found
+        abortOnError false
+        // if true, only report errors
+        ignoreWarnings true
+        checkAllWarnings false
+        checkReleaseBuilds false
+//        lintConfig file("lint.xml")
+    }
+    dexOptions {
+        maxProcessCount 4
+        javaMaxHeapSize "2048M"
     }
 }
 
@@ -42,4 +78,24 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+
+    //    如果你的jar包/依赖代码 在编译的时候需要依赖，在运行的时候也需要，那么就用compile
+    //    如果你的jar包/依赖代码 仅在编译的时候需要，但是在运行时不需要依赖,就用provided
+    if(findProject(":Downloader")) {
+        api files('libs/xutil3.3.6.jar')
+        api project(':Downloader')
+        api project(':OAuth2_Android_SDK:XmPayOrderSDK')
+        api project(':TingPhoneOpenSDK')
+        api project(':OpenSDKAdModel')
+    } else{
+        api fileTree(dir: 'libs', include: '*.jar')
+    }
+
+    api 'com.google.code.gson:gson:2.8.2'
+//    api 'com.squareup.okhttp3:okhttp:3.11.0'
+//    api 'com.squareup.okio:okio:1.15.0'
+    implementation("com.squareup.okhttp3:okhttp:3.14.9")
+    // https://mvnrepository.com/artifact/com.squareup.okio/okio
+    implementation group: 'com.squareup.okio', name: 'okio', version: '1.17.5'
+
 }
