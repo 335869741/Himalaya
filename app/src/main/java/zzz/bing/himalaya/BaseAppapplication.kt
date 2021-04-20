@@ -21,9 +21,9 @@ import com.ximalaya.ting.android.sdkdownloader.http.request.UriRequest
 import okhttp3.*
 import org.json.JSONException
 import org.json.JSONObject
+import zzz.bing.himalaya.ui.MainActivity
 import java.io.IOException
 
-import zzz.bing.himalaya.MainActivity.Companion.REDIRECT_URL
 import zzz.bing.himalaya.utils.LogUtil
 
 class BaseApplication : Application() {
@@ -33,11 +33,21 @@ class BaseApplication : Application() {
 
         private var appContext:Context? = null
         fun getContext() = appContext!!
+
+        /**
+         * 当前 DEMO 应用的回调页，第三方应用应该使用自己的回调页。
+         */
+        //    public static final String REDIRECT_URL =  "http://api.ximalaya.com";
+        val REDIRECT_URL = if (DTransferConstants.isRelease)
+            "http://api.ximalaya.com/openapi-collector-app/get_access_token"
+        else "http://qf.test.ximalaya.com/access_token/callback"
     }
 
     override fun onCreate() {
         super.onCreate()
         appContext = baseContext
+
+        LogUtil.isRelease = false
 
         if (BaseUtil.isMainProcess(this)) {
             val mp3 = getExternalFilesDir("mp3")!!.absolutePath
@@ -48,7 +58,6 @@ class BaseApplication : Application() {
                 val mAppSecret = "8646d66d6abe2efd14f2891f9fd1c8af"
                 mXimalaya.setAppkey("9f9ef8f10bebeaa83e71e62f935bede8")
                 mXimalaya.setPackid("com.app.test.android")
-//                mXimalaya.setPackid("zzz.bing.himalaya")
                 mXimalaya.init(this, mAppSecret, getDeviceInfoProvider(this))
             } else {
                 val mAppSecret = "0a09d7093bff3d4947a5c4da0125972e"
@@ -57,15 +66,6 @@ class BaseApplication : Application() {
                 mXimalaya.setPackid("zzz.bing.himalaya")
                 mXimalaya.init(this, mAppSecret, getDeviceInfoProvider(this))
             }
-////            <meta-data
-////            android:name="app_key"
-////            android:value="9f9ef8f10bebeaa83e71e62f935bede8" />
-////
-////            <meta-data
-////            android:name="pack_id"
-////            android:value="com.app.test.android" />
-//            val mAppSecret = "8646d66d6abe2efd14f2891f9fd1c8af"
-//            mXimalaya.init(this, mAppSecret, getDeviceInfoProvider(this))
             AccessTokenManager.getInstanse().init(this)
             if (AccessTokenManager.getInstanse().hasLogin()) {
                 registerLoginTokenChangeListener(this)

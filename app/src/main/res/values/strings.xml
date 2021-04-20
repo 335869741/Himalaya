@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Himalaya</string>
+    <string name="searchIcon">搜索</string>
+    <string name="textItemTitle">拿破伦《成功学》</string>
+    <string name="textItemContent">成功学</string>
+    <string name="textPlayCount">1234万</string>
+    <string name="textItemContentCount">12集</string>
+    <string name="imageItemIcon">栏目图片</string>
 </resources>

@@ -3,7 +3,32 @@ package zzz.bing.himalaya.utils
 import android.util.Log
 
 object LogUtil {
-    private const val CURRENT_LEVEL = 5
+    var isRelease = false
+        set(value) {
+            CURRENT_LEVEL = if (value){
+                WARING_LEVEL
+            }else{
+                DEBUG_LEVEL
+            }
+            field = value
+        }
+
+    var CURRENT_LEVEL = 5
+    set(value) {
+        when {
+            value >= DEBUG_LEVEL -> {
+                field = value
+            }
+            value >= WARING_LEVEL -> {
+                isRelease = true
+                field = value
+            }
+            else -> {
+                isRelease = true
+                field = WARING_LEVEL
+            }
+        }
+    }
     private const val DEBUG_LEVEL = 4
     private const val INFO_LEVEL = 3
     private const val WARING_LEVEL = 2
