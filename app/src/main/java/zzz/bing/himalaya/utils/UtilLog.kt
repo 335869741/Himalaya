@@ -2,7 +2,7 @@ package zzz.bing.himalaya.utils
 
 import android.util.Log
 
-object LogUtil {
+object UtilLog {
     var isRelease = false
         set(value) {
             CURRENT_LEVEL = if (value){

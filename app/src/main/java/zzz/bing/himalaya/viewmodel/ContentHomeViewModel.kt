@@ -9,8 +9,9 @@ import com.ximalaya.ting.android.opensdk.datatrasfer.IDataCallBack
 import com.ximalaya.ting.android.opensdk.model.album.Album
 import com.ximalaya.ting.android.opensdk.model.album.GussLikeAlbumList
 import zzz.bing.himalaya.utils.Constants
-import zzz.bing.himalaya.utils.LogUtil
+import zzz.bing.himalaya.utils.UtilLog
 import zzz.bing.himalaya.views.UILoader
+import java.util.HashMap
 
 class ContentHomeViewModel : ViewModel() {
 
@@ -28,13 +29,14 @@ class ContentHomeViewModel : ViewModel() {
      */
     fun getRecommendAlbum() {
         mUIStatusLiveData.postValue(UILoader.UIStatus.LOADING)
-        val map: MutableMap<String, String> = HashMap()
-        //控制获取专辑数量
-        map[DTransferConstants.LIKE_COUNT] = Constants.RECOMMEND_COUNT.toString()
-        CommonRequest.getGuessLikeAlbum(map, object : IDataCallBack<GussLikeAlbumList> {
+        CommonRequest.getGuessLikeAlbum(
+            //控制获取专辑数量
+            HashMap<String,String>().apply {
+                put(DTransferConstants.LIKE_COUNT, Constants.RECOMMEND_COUNT.toString())
+            }
+            , object : IDataCallBack<GussLikeAlbumList> {
             override fun onSuccess(p0: GussLikeAlbumList?) {
-                LogUtil.d(
-                    this@ContentHomeViewModel,
+                UtilLog.d(this@ContentHomeViewModel,
                     "getGuessLikeAlbum size --> ${p0?.albumList?.size}"
                 )
                 //判空
@@ -49,8 +51,7 @@ class ContentHomeViewModel : ViewModel() {
             }
 
             override fun onError(p0: Int, p1: String?) {
-                LogUtil.e(
-                    this@ContentHomeViewModel,
+                UtilLog.e(this@ContentHomeViewModel,
                     "getGuessLikeAlbum onError code ==> $p0 | message ==> $p1"
                 )
                 mUIStatusLiveData.postValue(UILoader.UIStatus.NETWORK_ERROR)

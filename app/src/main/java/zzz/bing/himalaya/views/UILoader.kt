@@ -34,10 +34,10 @@ abstract class UILoader<T : ViewBinding> @JvmOverloads constructor(
 
     private val mLifecycleOwner by lazy { getLifecycleOwner() }
 
-    val loading by lazy { mLoading }
-    val networkError by lazy { mNetworkError }
-    val empty by lazy { mEmpty }
-    val success by lazy { mSuccess }
+    val loading by lazy { mLoading.root }
+    val networkError by lazy { mNetworkError.root }
+    val empty by lazy { mEmpty.root }
+    val success by lazy { mSuccess.root }
 
 
     init {

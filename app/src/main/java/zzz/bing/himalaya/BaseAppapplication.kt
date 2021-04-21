@@ -24,14 +24,15 @@ import org.json.JSONObject
 import zzz.bing.himalaya.ui.MainActivity
 import java.io.IOException
 
-import zzz.bing.himalaya.utils.LogUtil
+import zzz.bing.himalaya.utils.UtilLog
 
+@Suppress("unused")
 class BaseApplication : Application() {
 
     companion object {
         const val REFRESH_TOKEN_URL = "https://api.ximalaya.com/oauth2/refresh_token?"
 
-        private var appContext:Context? = null
+        private var appContext: Context? = null
         fun getContext() = appContext!!
 
         /**
@@ -47,11 +48,11 @@ class BaseApplication : Application() {
         super.onCreate()
         appContext = baseContext
 
-        LogUtil.isRelease = false
+        UtilLog.isRelease = false
 
         if (BaseUtil.isMainProcess(this)) {
             val mp3 = getExternalFilesDir("mp3")!!.absolutePath
-            LogUtil.i(this,"地址是  $mp3")
+            UtilLog.i(this, "地址是  $mp3")
             val mXimalaya = CommonRequest.getInstanse()
             mXimalaya.useHttps = true
             if (DTransferConstants.isRelease) {
@@ -94,9 +95,9 @@ class BaseApplication : Application() {
         }
     }
 
-    private fun unregisterLoginTokenChangeListener() {
-        CommonRequest.getInstanse().iTokenStateChange = null
-    }
+//    private fun unregisterLoginTokenChangeListener() {
+//        CommonRequest.getInstanse().iTokenStateChange = null
+//    }
 
     private fun registerLoginTokenChangeListener(context: Context) {
         // 使用此回调了就表示贵方接了需要用户登录才能访问的接口,如果没有此类接口可以不用设置此接口,之前的逻辑没有发生改变
@@ -208,7 +209,7 @@ class BaseApplication : Application() {
             .build()
         try {
             val execute: Response = client.newCall(request).execute()
-            if (execute.isSuccessful()) {
+            if (execute.isSuccessful) {
                 try {
                     val string: String = execute.body()?.string()!!
                     val jsonObject = JSONObject(string)

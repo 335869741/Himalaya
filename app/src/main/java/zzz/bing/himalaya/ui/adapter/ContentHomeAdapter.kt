@@ -10,6 +10,7 @@ import com.bumptech.glide.Glide
 import com.ximalaya.ting.android.opensdk.model.album.Album
 import zzz.bing.himalaya.R
 import zzz.bing.himalaya.databinding.ItemContentHomeBinding
+import zzz.bing.himalaya.utils.UtilLog
 
 //RecyclerView的ListAdapter有丰富的动画
 class ContentHomeAdapter : ListAdapter<Album, ContentHomeAdapter.ContentHomeViewHolder>(
@@ -24,7 +25,7 @@ class ContentHomeAdapter : ListAdapter<Album, ContentHomeAdapter.ContentHomeView
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContentHomeViewHolder {
         val binding = ItemContentHomeBinding
-                .inflate(LayoutInflater.from(parent.context), parent, false)
+            .inflate(LayoutInflater.from(parent.context), parent, false)
         val contentHomeViewHolder = ContentHomeViewHolder(binding)
         contentHomeViewHolder.itemView.setOnClickListener {
             // TODO: 2021/4/20
@@ -43,13 +44,16 @@ class ContentHomeAdapter : ListAdapter<Album, ContentHomeAdapter.ContentHomeView
         binding.textPlayCount.text = getPlayCount(item.playCount)
 
         val imageUrl = getImageUrl(item)
-        if (!imageUrl.isNullOrEmpty()){
+        if (!imageUrl.isNullOrEmpty()) {
             Glide.with(holder.itemView.context)
                 .load(imageUrl)
                 .into(binding.imageItemIcon)
-        }else{
+        } else {
             binding.imageItemIcon.setImageDrawable(
-                ContextCompat.getDrawable(holder.itemView.context, R.drawable.ic_launcher_background)
+                ContextCompat.getDrawable(
+                    holder.itemView.context,
+                    R.drawable.ic_launcher_background
+                )
             )
         }
 
@@ -73,6 +77,10 @@ class ContentHomeAdapter : ListAdapter<Album, ContentHomeAdapter.ContentHomeView
                 album.coverUrlSmall
             }
             else -> {
+                UtilLog.w(
+                    this,
+                    "ImageUrl is null"
+                )
                 null
             }
         }
@@ -84,15 +92,15 @@ class ContentHomeAdapter : ListAdapter<Album, ContentHomeAdapter.ContentHomeView
      * @return String
      */
     private fun getPlayCount(playCount: Long) =
-        if (playCount > 10_000){
+        if (playCount > 10_000) {
             val integer = playCount / 10_000
-            val decimal = (playCount % 10_000)/1000
-            if (decimal == 0L){
+            val decimal = (playCount % 10_000) / 1000
+            if (decimal == 0L) {
                 "${integer}万"
-            }else{
+            } else {
                 "$integer.${decimal}万"
             }
-        }else{
+        } else {
             playCount.toString()
         }
 

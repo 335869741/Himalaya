@@ -6,4 +6,8 @@
     <string name="textPlayCount">1234万</string>
     <string name="textItemContentCount">12集</string>
     <string name="imageItemIcon">栏目图片</string>
+    <string name="textNetworkError">网络错误</string>
+    <string name="textNetworkLoading">加载中</string>
+    <string name="textContentEmpty">内容为空</string>
+    <string name="textNetworkLoadMore">加载更多</string>
 </resources>

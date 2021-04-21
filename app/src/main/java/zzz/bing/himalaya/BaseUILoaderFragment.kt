@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.viewbinding.ViewBinding
@@ -14,10 +13,11 @@ import zzz.bing.himalaya.views.UILoader
 abstract class BaseUILoaderFragment<B: ViewBinding, V: ViewModel> : Fragment() {
     protected lateinit var binding: B
     protected lateinit var viewModel: V
-
-    private val uiLoader by lazy {
+    protected val uiLoader by lazy {
         Loader()
     }
+
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
