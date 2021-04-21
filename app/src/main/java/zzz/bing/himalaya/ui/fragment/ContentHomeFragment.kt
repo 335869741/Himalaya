@@ -15,7 +15,7 @@ import zzz.bing.himalaya.views.UILoader
 class ContentHomeFragment : BaseUILoaderFragment<FragmentContentHomeBinding, ContentHomeViewModel>() {
 
 
-    private val mContentHomeAdapter by lazy { ContentHomeAdapter() }
+    private val mContentHomeAdapter by lazy { ContentHomeAdapter(this) }
 
     override fun initViewModel() = ViewModelProvider(this).get(ContentHomeViewModel::class.java)
     override fun initViewBinding() = FragmentContentHomeBinding.inflate(layoutInflater)

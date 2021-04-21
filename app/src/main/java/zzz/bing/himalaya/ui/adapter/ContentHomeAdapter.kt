@@ -3,6 +3,7 @@ package zzz.bing.himalaya.ui.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -10,10 +11,11 @@ import com.bumptech.glide.Glide
 import com.ximalaya.ting.android.opensdk.model.album.Album
 import zzz.bing.himalaya.R
 import zzz.bing.himalaya.databinding.ItemContentHomeBinding
+import zzz.bing.himalaya.ui.fragment.ContentHomeFragment
 import zzz.bing.himalaya.utils.UtilLog
 
 //RecyclerView的ListAdapter有丰富的动画
-class ContentHomeAdapter : ListAdapter<Album, ContentHomeAdapter.ContentHomeViewHolder>(
+class ContentHomeAdapter(val fragment: ContentHomeFragment) : ListAdapter<Album, ContentHomeAdapter.ContentHomeViewHolder>(
     object : DiffUtil.ItemCallback<Album>() {
         //判断对象是否一致，通常判断id
         override fun areItemsTheSame(oldItem: Album, newItem: Album) = oldItem.id == newItem.id
@@ -28,8 +30,9 @@ class ContentHomeAdapter : ListAdapter<Album, ContentHomeAdapter.ContentHomeView
             .inflate(LayoutInflater.from(parent.context), parent, false)
         val contentHomeViewHolder = ContentHomeViewHolder(binding)
         contentHomeViewHolder.itemView.setOnClickListener {
-            // TODO: 2021/4/20
-            //  应该跳转到详情
+            if (! fragment.findNavController().popBackStack(R.id.detailFragment,false)){
+                fragment.findNavController().navigate(R.id.detailFragment)
+            }
         }
         return contentHomeViewHolder
     }
