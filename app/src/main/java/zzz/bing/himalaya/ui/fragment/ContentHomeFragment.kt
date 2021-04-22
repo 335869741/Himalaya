@@ -1,5 +1,6 @@
 package zzz.bing.himalaya.ui.fragment
 
+import android.view.ViewTreeObserver
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -9,6 +10,7 @@ import zzz.bing.himalaya.BaseFragment
 import zzz.bing.himalaya.BaseUILoaderFragment
 import zzz.bing.himalaya.databinding.FragmentContentHomeBinding
 import zzz.bing.himalaya.ui.adapter.ContentHomeAdapter
+import zzz.bing.himalaya.utils.LogUtils
 import zzz.bing.himalaya.viewmodel.ContentHomeViewModel
 import zzz.bing.himalaya.views.UILoader
 
@@ -24,6 +26,7 @@ class ContentHomeFragment : BaseUILoaderFragment<FragmentContentHomeBinding, Con
     override fun initView() {
         binding.recycler.adapter = mContentHomeAdapter
         binding.recycler.layoutManager = LinearLayoutManager(requireContext())
+        binding.recycler.isNestedScrollingEnabled = false
     }
 
     override fun initData() {
@@ -45,6 +48,18 @@ class ContentHomeFragment : BaseUILoaderFragment<FragmentContentHomeBinding, Con
         uiLoader.empty.setOnClickListener {
             reLoadData()
         }
+//        binding.constraint.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener{
+//            override fun onGlobalLayout() {
+//                val height = binding.constraint.measuredHeight
+//                val params = binding.recycler.layoutParams
+//                params.height = height
+////                binding.recycler.layoutParams = params
+//                LogUtils.d(this@ContentHomeFragment,"onGlobalLayout $height")
+//                if (height != 0){
+//                    binding.constraint.viewTreeObserver.removeOnGlobalLayoutListener(this)
+//                }
+//            }
+//        })
     }
 
     private fun reLoadData() {

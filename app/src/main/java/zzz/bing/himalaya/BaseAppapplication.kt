@@ -24,7 +24,7 @@ import org.json.JSONObject
 import zzz.bing.himalaya.ui.MainActivity
 import java.io.IOException
 
-import zzz.bing.himalaya.utils.UtilLog
+import zzz.bing.himalaya.utils.LogUtils
 
 @Suppress("unused")
 class BaseApplication : Application() {
@@ -48,11 +48,11 @@ class BaseApplication : Application() {
         super.onCreate()
         appContext = baseContext
 
-        UtilLog.isRelease = false
+        LogUtils.isRelease = false
 
         if (BaseUtil.isMainProcess(this)) {
             val mp3 = getExternalFilesDir("mp3")!!.absolutePath
-            UtilLog.i(this, "地址是  $mp3")
+            LogUtils.i(this, "地址是  $mp3")
             val mXimalaya = CommonRequest.getInstanse()
             mXimalaya.useHttps = true
             if (DTransferConstants.isRelease) {

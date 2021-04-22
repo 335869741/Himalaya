@@ -11,8 +11,9 @@ import com.bumptech.glide.Glide
 import com.ximalaya.ting.android.opensdk.model.album.Album
 import zzz.bing.himalaya.R
 import zzz.bing.himalaya.databinding.ItemContentHomeBinding
+import zzz.bing.himalaya.domain.Action
 import zzz.bing.himalaya.ui.fragment.ContentHomeFragment
-import zzz.bing.himalaya.utils.UtilLog
+import zzz.bing.himalaya.utils.LogUtils
 
 //RecyclerView的ListAdapter有丰富的动画
 class ContentHomeAdapter(val fragment: ContentHomeFragment) : ListAdapter<Album, ContentHomeAdapter.ContentHomeViewHolder>(
@@ -24,16 +25,16 @@ class ContentHomeAdapter(val fragment: ContentHomeFragment) : ListAdapter<Album,
         override fun areContentsTheSame(oldItem: Album, newItem: Album) = oldItem.id == newItem.id
     }
 ) {
+    private var index = 0
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContentHomeViewHolder {
         val binding = ItemContentHomeBinding
             .inflate(LayoutInflater.from(parent.context), parent, false)
         val contentHomeViewHolder = ContentHomeViewHolder(binding)
         contentHomeViewHolder.itemView.setOnClickListener {
-            if (! fragment.findNavController().popBackStack(R.id.detailFragment,false)){
-                fragment.findNavController().navigate(R.id.detailFragment)
-            }
+            Action.toDetail(fragment.findNavController())
         }
+        LogUtils.d(this,"onCreateViewHolder ${index++}")
         return contentHomeViewHolder
     }
 
@@ -80,7 +81,7 @@ class ContentHomeAdapter(val fragment: ContentHomeFragment) : ListAdapter<Album,
                 album.coverUrlSmall
             }
             else -> {
-                UtilLog.w(
+                LogUtils.w(
                     this,
                     "ImageUrl is null"
                 )

@@ -10,4 +10,5 @@
     <string name="textNetworkLoading">加载中</string>
     <string name="textContentEmpty">内容为空</string>
     <string name="textNetworkLoadMore">加载更多</string>
+    <string name="textAuthor">作者</string>
 </resources>

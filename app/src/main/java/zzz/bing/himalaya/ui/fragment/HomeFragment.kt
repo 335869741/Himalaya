@@ -10,13 +10,14 @@ import zzz.bing.himalaya.ui.adapter.HomeTabAdapter
 import zzz.bing.himalaya.viewmodel.HomeViewModel
 
 class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>() {
-    private val mHomeTabAdapter by lazy { HomeTabAdapter(requireActivity()) }
+    private lateinit var mHomeTabAdapter : HomeTabAdapter
 
     override fun initViewModel() = ViewModelProvider(this).get(HomeViewModel::class.java)
 
     override fun initViewBinding() = FragmentHomeBinding.inflate(layoutInflater)
 
     override fun initView() {
+        mHomeTabAdapter = HomeTabAdapter(requireActivity())
         binding.pager.adapter = mHomeTabAdapter
         synchronizationTabAndPage(binding.tab, binding.pager)
     }

@@ -6,13 +6,9 @@
     <fragment
         android:id="@+id/homeFragment"
         android:name="zzz.bing.himalaya.ui.fragment.HomeFragment"
-        android:label="HomeFragment" />
-    <fragment
-        android:id="@+id/contentHomeFragment"
-        android:name="zzz.bing.himalaya.ui.fragment.ContentHomeFragment"
-        android:label="ContentHomeFragment" >
+        android:label="HomeFragment" >
         <action
-            android:id="@+id/action_contentHomeFragment_to_detailFragment"
+            android:id="@+id/action_homeFragment_to_detailFragment"
             app:destination="@id/detailFragment" />
     </fragment>
     <fragment
