@@ -1,16 +1,11 @@
 package zzz.bing.himalaya.ui.fragment
 
-import android.view.ViewTreeObserver
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ximalaya.ting.android.opensdk.model.album.Album
-import com.ximalaya.ting.android.opensdk.model.album.AlbumList
-import zzz.bing.himalaya.BaseFragment
 import zzz.bing.himalaya.BaseUILoaderFragment
 import zzz.bing.himalaya.databinding.FragmentContentHomeBinding
 import zzz.bing.himalaya.ui.adapter.ContentHomeAdapter
-import zzz.bing.himalaya.utils.LogUtils
 import zzz.bing.himalaya.viewmodel.ContentHomeViewModel
 import zzz.bing.himalaya.views.UILoader
 

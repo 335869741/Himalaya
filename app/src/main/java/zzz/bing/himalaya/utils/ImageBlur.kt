@@ -10,7 +10,15 @@ import kotlin.math.roundToInt
 
 
 object ImageBlur {
-    private fun renderScriptBlur(context: Context, source: Bitmap, radius: Int): Bitmap {
+
+    /**
+     *
+     * @param context Context
+     * @param source Bitmap
+     * @param radius Int
+     * @return Bitmap
+     */
+    fun renderScriptBlur(context: Context, source: Bitmap, radius: Int): Bitmap {
         //(1)
         val renderScript = RenderScript.create(context)
         LogUtils.i(this, "scale size:" + source.width + "*" + source.height)
@@ -39,7 +47,15 @@ object ImageBlur {
         return source
     }
 
-    private fun renderScriptBlur(context: Context, source: Bitmap, radius: Int, scale: Float): Bitmap {
+    /**
+     *
+     * @param context Context
+     * @param source Bitmap
+     * @param radius Int
+     * @param scale Float
+     * @return Bitmap
+     */
+    fun renderScriptBlur(context: Context, source: Bitmap, radius: Int, scale: Float): Bitmap {
         LogUtils.i(this, "origin size:" + source.width + "*" + source.height)
         val width = (source.width * scale).roundToInt()
         val height = (source.height * scale).roundToInt()

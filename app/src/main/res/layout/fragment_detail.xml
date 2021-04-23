@@ -14,29 +14,30 @@
         android:fitsSystemWindows="true">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/collapsingToolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
+            app:collapsedTitleGravity="center"
+            app:expandedTitleGravity="center_vertical"
+            app:expandedTitleMarginBottom="80dp"
+            app:expandedTitleMarginStart="150dp"
             app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
             app:statusBarScrim="@color/main_transparent"
             app:title="@string/app_name"
             app:toolbarId="@+id/toolbar">
 
             <ImageView
+                android:id="@+id/imageBackground"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginBottom="135dp"
-                android:scaleType="centerCrop"
-                app:layout_collapseMode="parallax"
-                app:layout_collapseParallaxMultiplier="0.6"
-                android:src="@drawable/ic_launcher_background" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:background="@drawable/shape_status_gradient"
+                android:layout_height="200dp"
+                android:contentDescription="@string/background"
                 android:fitsSystemWindows="true"
-                app:layout_collapseMode="pin" />
+                android:foreground="@drawable/shape_status_gradient"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_launcher_background"
+                app:layout_collapseMode="parallax"
+                app:layout_collapseParallaxMultiplier="1" />
 
 
             <com.google.android.material.appbar.MaterialToolbar
@@ -46,13 +47,14 @@
                 app:layout_collapseMode="pin" />
 
             <androidx.constraintlayout.utils.widget.ImageFilterView
-                android:id="@+id/imageAlbumIcon"
+                android:id="@+id/imageItemIcon"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:layout_gravity="start|center_vertical"
                 android:layout_marginStart="30dp"
-                android:layout_marginBottom="20dp"
+                android:layout_marginTop="30dp"
                 android:fitsSystemWindows="true"
+                android:transitionName="imageItemIcon"
                 app:layout_collapseMode="parallax"
                 app:layout_collapseParallaxMultiplier="2"
                 app:roundPercent="0.1"
@@ -63,47 +65,60 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start|center_vertical"
-                android:layout_marginStart="30dp"
-                android:layout_marginTop="50dp"
+                android:layout_marginStart="150dp"
+                android:layout_marginTop="60dp"
                 android:text="@string/textAuthor"
                 app:layout_collapseMode="parallax"
-                app:layout_collapseParallaxMultiplier="-2" />
+                app:layout_collapseParallaxMultiplier="-1" />
 
             <TextView
+                android:id="@+id/textSubscribe"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="end|bottom"
-                android:layout_marginEnd="50dp"
-                android:layout_marginBottom="30dp"
-                android:text="订阅"
+                android:layout_gravity="end|center_vertical"
+                android:layout_marginTop="80dp"
+                android:layout_marginEnd="30dp"
+                android:text="@string/textSubscribe"
                 app:layout_collapseMode="parallax"
-                app:layout_collapseParallaxMultiplier="-2" />
+                app:layout_collapseParallaxMultiplier="1.5" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|center_horizontal"
-                android:layout_marginStart="30dp"
-                android:layout_marginBottom="30dp"
-                android:text="播放"
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_gravity="bottom"
+                android:background="@color/littleWhite"
                 app:layout_collapseMode="parallax"
-                app:layout_collapseParallaxMultiplier="1" />
+                app:layout_collapseParallaxMultiplier="2">
+
+                <TextView
+                    android:id="@+id/textOnPlay"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start|center_vertical"
+                    android:layout_marginStart="30dp"
+                    android:text="@string/textOnPlay" />
+
+                <TextView
+                    android:id="@+id/textOnSelect"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end|center_vertical"
+                    android:layout_marginEnd="30dp"
+                    android:text="@string/textOnSelect" />
+
+            </FrameLayout>
 
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.core.widget.NestedScrollView
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
-        <TextView
-            android:id="@+id/textView3"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="TextView" />
-    </androidx.core.widget.NestedScrollView>
+    </androidx.recyclerview.widget.RecyclerView>
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

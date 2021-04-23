@@ -11,6 +11,7 @@ import zzz.bing.himalaya.viewmodel.HomeViewModel
 
 class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>() {
     private lateinit var mHomeTabAdapter : HomeTabAdapter
+//    private val mHomeTabAdapter by lazy { HomeTabAdapter(requireActivity()) }
 
     override fun initViewModel() = ViewModelProvider(this).get(HomeViewModel::class.java)
 
@@ -22,6 +23,11 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>() {
         synchronizationTabAndPage(binding.tab, binding.pager)
     }
 
+    /**
+     * 同步tab和pager
+     * @param tabLayout TabLayout
+     * @param pager ViewPager2
+     */
     private fun synchronizationTabAndPage(tabLayout: TabLayout, pager: ViewPager2) {
         TabLayoutMediator(tabLayout, pager) { tab, position ->
             when (position) {

@@ -11,4 +11,5 @@
     <color name="main_transparent">#00000000</color>
     <color name="background">#FFF0F0F0</color>
     <color name="gray">#f0575757</color>
+    <color name="littleWhite">#FFEFEFEF</color>
 </resources>
