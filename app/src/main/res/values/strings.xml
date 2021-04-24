@@ -11,7 +11,7 @@
     <string name="textContentEmpty">内容为空</string>
     <string name="textNetworkLoadMore">加载更多</string>
     <string name="textAuthor">作者</string>
-    <string name="textSubscribe">订阅</string>
+    <string name="textSubscribe">+ 订阅</string>
     <string name="textOnPlay">播放</string>
     <string name="textOnSelect">选集</string>
     <string name="background">background</string>

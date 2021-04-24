@@ -11,7 +11,6 @@ import zzz.bing.himalaya.viewmodel.HomeViewModel
 
 class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>() {
     private lateinit var mHomeTabAdapter : HomeTabAdapter
-//    private val mHomeTabAdapter by lazy { HomeTabAdapter(requireActivity()) }
 
     override fun initViewModel() = ViewModelProvider(this).get(HomeViewModel::class.java)
 

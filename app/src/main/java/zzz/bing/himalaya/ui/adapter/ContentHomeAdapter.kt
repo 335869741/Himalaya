@@ -1,9 +1,10 @@
 package zzz.bing.himalaya.ui.adapter
 
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.toBitmap
+import androidx.core.view.ViewCompat
+import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -12,11 +13,11 @@ import com.bumptech.glide.Glide
 import com.ximalaya.ting.android.opensdk.model.album.Album
 import zzz.bing.himalaya.R
 import zzz.bing.himalaya.databinding.ItemContentHomeBinding
-import zzz.bing.himalaya.domain.Action
+import zzz.bing.himalaya.ui.fragment.AlbumDetailFragment
 import zzz.bing.himalaya.ui.fragment.ContentHomeFragment
-import zzz.bing.himalaya.utils.Base64Util
-import zzz.bing.himalaya.utils.Extension.getImageUrl
 import zzz.bing.himalaya.utils.LogUtils
+import zzz.bing.himalaya.utils.doOnEnd
+import zzz.bing.himalaya.utils.getImageUrl
 
 //RecyclerView的ListAdapter有丰富的动画
 class ContentHomeAdapter(val fragment: ContentHomeFragment) :
@@ -30,32 +31,36 @@ class ContentHomeAdapter(val fragment: ContentHomeFragment) :
                 oldItem.id == newItem.id
         }
     ) {
-    private var index = 0
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContentHomeViewHolder {
         val binding = ItemContentHomeBinding
             .inflate(LayoutInflater.from(parent.context), parent, false)
         val contentHomeViewHolder = ContentHomeViewHolder(binding)
-        contentHomeViewHolder.itemView.setOnClickListener { itemView->
-            val item = itemView.tag as Album
-            Base64Util.bitmapToBase64(binding.imageItemIcon.drawable.toBitmap())?.also { base64 ->
-                Action.toDetail(
-                    fragment.findNavController(),
-                    base64,
-                    item.albumTitle,
-                    item.albumIntro,
-                    binding.imageItemIcon
+        contentHomeViewHolder.itemView.setOnClickListener {
+            val item = getItem(contentHomeViewHolder.adapterPosition)
+            item.getImageUrl()?.also {
+                fragment.findNavController().navigate(
+                    R.id.action_homeFragment_to_detailFragment,
+                    Bundle().apply {
+                        putString(AlbumDetailFragment.ACTION_COVER_IMAGE_URL, it)
+                        putString(AlbumDetailFragment.ACTION_ALBUM_TITLE, item.albumTitle)
+                        putString(AlbumDetailFragment.ACTION_AUTHOR, item.albumIntro)
+                        putLong(AlbumDetailFragment.ACTION_ITEM_ID,item.id)
+                    }, null,
+                    FragmentNavigatorExtras(
+                        binding.imageItemIcon to "${AlbumDetailFragment.TRANSITION_IMAGE_ICON}_${item.id}"
+//                                binding.imageItemIcon to AlbumDetailFragment.TRANSITION_IMAGE_ICON
+                    )
                 )
             }
+            fragment.onChangItemForId(contentHomeViewHolder.adapterPosition)
         }
-        LogUtils.d(this, "onCreateViewHolder ${index++}")
         return contentHomeViewHolder
     }
 
     override fun onBindViewHolder(holder: ContentHomeViewHolder, position: Int) {
         val binding = holder.binding
         val item = getItem(position)
-        holder.itemView.tag = item
 
         binding.textItemTitle.text = item.albumTitle
         binding.textItemContent.text = item.albumIntro
@@ -65,9 +70,22 @@ class ContentHomeAdapter(val fragment: ContentHomeFragment) :
         item.getImageUrl()?.also { url ->
             Glide.with(holder.itemView.context)
                 .load(url)
+                .doOnEnd { fragment.startPostponedEnterTransition() }
                 .into(binding.imageItemIcon)
         }
+        onSetTransitionName(binding, item)
+    }
 
+    /**
+     * 共享元素设置标签
+     * @param binding ItemContentHomeBinding
+     * @param item Album
+     */
+    private fun onSetTransitionName(binding: ItemContentHomeBinding, item: Album) {
+        ViewCompat.setTransitionName(
+            binding.imageItemIcon,
+            "${AlbumDetailFragment.TRANSITION_IMAGE_ICON}_${item.id}"
+        )
     }
 
 

@@ -13,6 +13,6 @@
     </fragment>
     <fragment
         android:id="@+id/detailFragment"
-        android:name="zzz.bing.himalaya.ui.fragment.DetailFragment"
+        android:name="zzz.bing.himalaya.ui.fragment.AlbumDetailFragment"
         android:label="DetailFragment" />
 </navigation>

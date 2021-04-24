@@ -5,7 +5,7 @@ import android.widget.ImageView
 import androidx.navigation.NavController
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import zzz.bing.himalaya.R
-import zzz.bing.himalaya.ui.fragment.DetailFragment
+import zzz.bing.himalaya.ui.fragment.AlbumDetailFragment
 
 object Action {
 
@@ -27,9 +27,9 @@ object Action {
         navController.navigate(
             R.id.action_homeFragment_to_detailFragment,
             Bundle().apply {
-                putString(DetailFragment.ACTION_COVER_IMAGE_BASE64, coverImageBase64)
-                putString(DetailFragment.ACTION_ALBUM_TITLE, albumTitle)
-                putString(DetailFragment.ACTION_AUTHOR, author)
+                putString(AlbumDetailFragment.ACTION_COVER_IMAGE_URL, coverImageBase64)
+                putString(AlbumDetailFragment.ACTION_ALBUM_TITLE, albumTitle)
+                putString(AlbumDetailFragment.ACTION_AUTHOR, author)
             }, null,
             FragmentNavigatorExtras(imageView to "imageItemIcon")
         )

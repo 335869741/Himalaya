@@ -55,4 +55,10 @@ abstract class BaseFragment<B: ViewBinding, V: ViewModel> : Fragment() {
      * @return B
      */
     abstract fun initViewBinding(): B
+
+    /**
+     * 返回事件
+     * @return Boolean false表示事件继续，调用者继续处理事件。true表示事件终止，已经处理完毕，不需要继续处理
+     */
+    open fun onBackPressed() = false
 }

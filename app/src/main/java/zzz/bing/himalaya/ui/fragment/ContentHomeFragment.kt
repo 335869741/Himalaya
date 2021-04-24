@@ -11,7 +11,6 @@ import zzz.bing.himalaya.views.UILoader
 
 class ContentHomeFragment : BaseUILoaderFragment<FragmentContentHomeBinding, ContentHomeViewModel>() {
 
-
     private val mContentHomeAdapter by lazy { ContentHomeAdapter(this) }
 
     override fun initViewModel() = ViewModelProvider(this).get(ContentHomeViewModel::class.java)
@@ -43,20 +42,11 @@ class ContentHomeFragment : BaseUILoaderFragment<FragmentContentHomeBinding, Con
         uiLoader.empty.setOnClickListener {
             reLoadData()
         }
-//        binding.constraint.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener{
-//            override fun onGlobalLayout() {
-//                val height = binding.constraint.measuredHeight
-//                val params = binding.recycler.layoutParams
-//                params.height = height
-////                binding.recycler.layoutParams = params
-//                LogUtils.d(this@ContentHomeFragment,"onGlobalLayout $height")
-//                if (height != 0){
-//                    binding.constraint.viewTreeObserver.removeOnGlobalLayoutListener(this)
-//                }
-//            }
-//        })
     }
 
+    /**
+     * 重新加载数据
+     */
     private fun reLoadData() {
         if (viewModel.uiStatusLiveData.value != UILoader.UIStatus.LOADING &&
                 viewModel.uiStatusLiveData.value != UILoader.UIStatus.SUCCESS){
@@ -73,5 +63,7 @@ class ContentHomeFragment : BaseUILoaderFragment<FragmentContentHomeBinding, Con
         mContentHomeAdapter.submitList(albumList)
     }
 
-
+    fun onChangItemForId(id:Int){
+        mContentHomeAdapter.notifyItemChanged(id)
+    }
 }

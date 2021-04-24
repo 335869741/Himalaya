@@ -10,14 +10,11 @@ import androidx.lifecycle.ViewModel
 import androidx.viewbinding.ViewBinding
 import zzz.bing.himalaya.views.UILoader
 
-abstract class BaseUILoaderFragment<B: ViewBinding, V: ViewModel> : Fragment() {
-    protected lateinit var binding: B
-    protected lateinit var viewModel: V
+abstract class BaseUILoaderFragment<B: ViewBinding, V: ViewModel> : BaseFragment<B, V>() {
+
     protected val uiLoader by lazy {
         Loader()
     }
-
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -30,38 +27,6 @@ abstract class BaseUILoaderFragment<B: ViewBinding, V: ViewModel> : Fragment() {
         initObserver()
         return uiLoader
     }
-
-    /**
-     * 初始化ui
-     */
-    protected open fun initView() {}
-
-    /**
-     * 初始化ui事件监听器
-     */
-    protected open fun initListener() {}
-
-    /**
-     *  初始化vm数据观察
-     */
-    protected open fun initObserver() {}
-
-    /**
-     *  初始化ui数据
-     */
-    protected open fun initData() {}
-
-    /**
-     * 获得ViewModel
-     * @return V
-     */
-    abstract fun initViewModel(): V
-
-    /**
-     * 获得ViewBinding
-     * @return B
-     */
-    abstract fun initViewBinding(): B
 
     /**
      * 获得UIStatus的LiveData

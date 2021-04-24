@@ -1,11 +1,8 @@
 package zzz.bing.himalaya.ui
 
 import android.os.Bundle
-import androidx.annotation.IdRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.NavController
-import androidx.navigation.fragment.NavHostFragment
 import zzz.bing.himalaya.databinding.ActivityMainBinding
 import zzz.bing.himalaya.viewmodel.MainViewModel
 

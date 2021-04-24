@@ -19,8 +19,9 @@
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
             app:collapsedTitleGravity="center"
+            app:contentScrim="@drawable/shape_status_gradient"
             app:expandedTitleGravity="center_vertical"
-            app:expandedTitleMarginBottom="80dp"
+            app:expandedTitleMarginBottom="60dp"
             app:expandedTitleMarginStart="150dp"
             app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
             app:statusBarScrim="@color/main_transparent"
@@ -47,14 +48,13 @@
                 app:layout_collapseMode="pin" />
 
             <androidx.constraintlayout.utils.widget.ImageFilterView
-                android:id="@+id/imageItemIcon"
+                android:id="@+id/imageAlbumIcon"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:layout_gravity="start|center_vertical"
                 android:layout_marginStart="30dp"
                 android:layout_marginTop="30dp"
                 android:fitsSystemWindows="true"
-                android:transitionName="imageItemIcon"
                 app:layout_collapseMode="parallax"
                 app:layout_collapseParallaxMultiplier="2"
                 app:roundPercent="0.1"
@@ -66,25 +66,31 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="start|center_vertical"
                 android:layout_marginStart="150dp"
-                android:layout_marginTop="60dp"
+                android:layout_marginTop="30dp"
+                android:maxEms="20"
+                android:maxLines="1"
                 android:text="@string/textAuthor"
                 app:layout_collapseMode="parallax"
                 app:layout_collapseParallaxMultiplier="-1" />
 
             <TextView
                 android:id="@+id/textSubscribe"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="60dp"
+                android:layout_height="30dp"
                 android:layout_gravity="end|center_vertical"
-                android:layout_marginTop="80dp"
+                android:layout_marginTop="60dp"
                 android:layout_marginEnd="30dp"
+                android:background="@drawable/shape_album_detail_order_text"
+                android:foreground="?attr/selectableItemBackground"
+                android:gravity="center"
                 android:text="@string/textSubscribe"
+                android:textColor="@color/white"
                 app:layout_collapseMode="parallax"
                 app:layout_collapseParallaxMultiplier="1.5" />
 
             <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="30dp"
+                android:layout_height="40dp"
                 android:layout_gravity="bottom"
                 android:background="@color/littleWhite"
                 app:layout_collapseMode="parallax"
@@ -96,16 +102,23 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="start|center_vertical"
                     android:layout_marginStart="30dp"
-                    android:text="@string/textOnPlay" />
+                    android:gravity="center_vertical"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:text="@string/textOnPlay"
+                    app:drawableStartCompat="@mipmap/play_icon" />
 
                 <TextView
                     android:id="@+id/textOnSelect"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="20dp"
                     android:layout_gravity="end|center_vertical"
                     android:layout_marginEnd="30dp"
-                    android:text="@string/textOnSelect" />
-
+                    android:gravity="center_vertical"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:text="@string/textOnSelect"
+                    app:drawableEndCompat="@mipmap/arrow_icon" />
             </FrameLayout>
 
 

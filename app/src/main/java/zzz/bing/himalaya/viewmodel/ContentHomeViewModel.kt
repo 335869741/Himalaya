@@ -8,13 +8,12 @@ import com.ximalaya.ting.android.opensdk.datatrasfer.CommonRequest
 import com.ximalaya.ting.android.opensdk.datatrasfer.IDataCallBack
 import com.ximalaya.ting.android.opensdk.model.album.Album
 import com.ximalaya.ting.android.opensdk.model.album.GussLikeAlbumList
-import zzz.bing.himalaya.utils.Constants
 import zzz.bing.himalaya.utils.LogUtils
+import zzz.bing.himalaya.utils.RECOMMEND_COUNT
 import zzz.bing.himalaya.views.UILoader
 import java.util.HashMap
 
 class ContentHomeViewModel : ViewModel() {
-
 
     private val mUIStatusLiveData by lazy {
         MutableLiveData<UILoader.UIStatus>().apply { value = UILoader.UIStatus.NONE }
@@ -32,7 +31,7 @@ class ContentHomeViewModel : ViewModel() {
         CommonRequest.getGuessLikeAlbum(
             //控制获取专辑数量
             HashMap<String,String>().apply {
-                put(DTransferConstants.LIKE_COUNT, Constants.RECOMMEND_COUNT.toString())
+                put(DTransferConstants.LIKE_COUNT, RECOMMEND_COUNT.toString())
             }
             , object : IDataCallBack<GussLikeAlbumList> {
             override fun onSuccess(p0: GussLikeAlbumList?) {
