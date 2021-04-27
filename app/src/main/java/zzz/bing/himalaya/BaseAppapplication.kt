@@ -21,7 +21,7 @@ import com.ximalaya.ting.android.sdkdownloader.http.request.UriRequest
 import okhttp3.*
 import org.json.JSONException
 import org.json.JSONObject
-import zzz.bing.himalaya.ui.MainActivity
+import zzz.bing.himalaya.view.MainActivity
 import java.io.IOException
 
 import zzz.bing.himalaya.utils.LogUtils

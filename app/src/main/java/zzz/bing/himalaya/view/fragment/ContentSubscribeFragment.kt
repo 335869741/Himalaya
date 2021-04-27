@@ -1,4 +1,4 @@
-package zzz.bing.himalaya.ui.fragment
+package zzz.bing.himalaya.view.fragment
 
 import androidx.lifecycle.ViewModelProvider
 import zzz.bing.himalaya.BaseFragment

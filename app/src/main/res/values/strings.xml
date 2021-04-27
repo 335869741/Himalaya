@@ -16,4 +16,11 @@
     <string name="textOnSelect">选集</string>
     <string name="background">background</string>
     <string name="textCount">1</string>
+    <string name="title">标题</string>
+    <string name="sort">排序</string>
+    <string name="play">播放</string>
+    <string name="next">下一个</string>
+    <string name="list">列表</string>
+    <string name="previous">上一个</string>
+    <string name="imageBackground">背景图片</string>
 </resources>

@@ -1,4 +1,4 @@
-package zzz.bing.himalaya.ui.fragment
+package zzz.bing.himalaya.view.fragment
 
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
@@ -6,7 +6,7 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import zzz.bing.himalaya.BaseFragment
 import zzz.bing.himalaya.databinding.FragmentHomeBinding
-import zzz.bing.himalaya.ui.adapter.HomeTabAdapter
+import zzz.bing.himalaya.view.adapter.HomeTabAdapter
 import zzz.bing.himalaya.viewmodel.HomeViewModel
 
 class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>() {

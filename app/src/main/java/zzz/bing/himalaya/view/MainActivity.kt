@@ -1,4 +1,4 @@
-package zzz.bing.himalaya.ui
+package zzz.bing.himalaya.view
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -23,5 +23,5 @@ class MainActivity : AppCompatActivity() {
 //        return navHostFragment.navController
 //    }
 //
-//    fun getViewModel() = mViewModel
+    fun getViewModel() = mViewModel
 }

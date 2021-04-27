@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/textPlayerTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/title"
+        android:textSize="@dimen/title"
+        app:layout_constraintBottom_toTopOf="@+id/guideline8"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_end="45dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline7"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_end="90dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="60dp" />
+
+    <ImageView
+        android:id="@+id/imagePlayerSort"
+        android:layout_width="@dimen/player_button_size"
+        android:layout_height="@dimen/player_button_size"
+        android:contentDescription="@string/sort"
+        app:layout_constraintBottom_toTopOf="@+id/guideline6"
+        app:layout_constraintEnd_toStartOf="@+id/imagePlayerPrevious"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/guideline6"
+        app:srcCompat="@drawable/selector_player_sort_descending" />
+
+    <ImageView
+        android:id="@+id/imagePlay"
+        android:layout_width="@dimen/player_button_size"
+        android:layout_height="@dimen/player_button_size"
+        android:contentDescription="@string/play"
+        app:layout_constraintBottom_toBottomOf="@+id/imagePlayerPrevious"
+        app:layout_constraintEnd_toStartOf="@+id/imagePlayerNext"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/imagePlayerPrevious"
+        app:layout_constraintTop_toTopOf="@+id/imagePlayerPrevious"
+        app:srcCompat="@drawable/selector_player_start" />
+
+    <ImageView
+
+
+        android:id="@+id/imagePlayerNext"
+        android:layout_width="@dimen/player_button_size"
+        android:layout_height="@dimen/player_button_size"
+        android:contentDescription="@string/next"
+        app:layout_constraintBottom_toBottomOf="@+id/imagePlay"
+        app:layout_constraintEnd_toStartOf="@+id/imagePlayerList"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/imagePlay"
+        app:layout_constraintTop_toTopOf="@+id/imagePlay"
+        app:srcCompat="@drawable/selector_player_next" />
+
+    <ImageView
+        android:id="@+id/imagePlayerList"
+        android:layout_width="@dimen/player_button_size"
+        android:layout_height="@dimen/player_button_size"
+        android:contentDescription="@string/list"
+        app:layout_constraintBottom_toBottomOf="@+id/imagePlayerNext"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/imagePlayerNext"
+        app:layout_constraintTop_toTopOf="@+id/imagePlayerNext"
+        app:srcCompat="@drawable/selector_player_list" />
+
+    <ImageView
+        android:id="@+id/imagePlayerPrevious"
+        android:layout_width="@dimen/player_button_size"
+        android:layout_height="@dimen/player_button_size"
+        android:contentDescription="@string/previous"
+        app:layout_constraintBottom_toBottomOf="@+id/imagePlayerSort"
+        app:layout_constraintEnd_toStartOf="@+id/imagePlay"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/imagePlayerSort"
+        app:layout_constraintTop_toTopOf="@+id/imagePlayerSort"
+        app:srcCompat="@drawable/selector_player_previous" />
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/pager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/guideline7"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/guideline8" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

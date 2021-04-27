@@ -1,4 +1,4 @@
-package zzz.bing.himalaya.ui.adapter
+package zzz.bing.himalaya.view.adapter
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,9 +13,8 @@ import com.bumptech.glide.Glide
 import com.ximalaya.ting.android.opensdk.model.album.Album
 import zzz.bing.himalaya.R
 import zzz.bing.himalaya.databinding.ItemContentHomeBinding
-import zzz.bing.himalaya.ui.fragment.AlbumDetailFragment
-import zzz.bing.himalaya.ui.fragment.ContentHomeFragment
-import zzz.bing.himalaya.utils.LogUtils
+import zzz.bing.himalaya.view.fragment.AlbumDetailFragment
+import zzz.bing.himalaya.view.fragment.ContentHomeFragment
 import zzz.bing.himalaya.utils.doOnEnd
 import zzz.bing.himalaya.utils.getImageUrl
 

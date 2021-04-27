@@ -4,4 +4,5 @@
     <dimen name="textItemContent">16sp</dimen>
     <dimen name="title">20sp</dimen>
     <dimen name="spacing_tiny">4dp</dimen>
+    <dimen name="player_button_size">50dp</dimen>
 </resources>

@@ -1,4 +1,4 @@
-package zzz.bing.himalaya.ui.fragment
+package zzz.bing.himalaya.view.fragment
 
 import android.os.Bundle
 import android.view.View
@@ -16,8 +16,8 @@ import com.ximalaya.ting.android.opensdk.model.track.Track
 import zzz.bing.himalaya.BaseFragment
 import zzz.bing.himalaya.R
 import zzz.bing.himalaya.databinding.FragmentAlbumDetailBinding
-import zzz.bing.himalaya.ui.MainActivity
-import zzz.bing.himalaya.ui.adapter.AlbumDetailAdapter
+import zzz.bing.himalaya.view.MainActivity
+import zzz.bing.himalaya.view.adapter.AlbumDetailAdapter
 import zzz.bing.himalaya.utils.*
 import zzz.bing.himalaya.viewmodel.AlbumDetailViewModel
 import java.util.concurrent.TimeUnit
@@ -52,7 +52,7 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
     override fun initView() {
         setBarColor()
         binding.recycler.layoutManager = LinearLayoutManager(requireContext())
-        mAlbumDetailAdapter = AlbumDetailAdapter()
+        mAlbumDetailAdapter = AlbumDetailAdapter(this)
         binding.recycler.adapter = mAlbumDetailAdapter
     }
 

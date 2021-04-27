@@ -5,7 +5,7 @@
 
     <fragment
         android:id="@+id/homeFragment"
-        android:name="zzz.bing.himalaya.ui.fragment.HomeFragment"
+        android:name="zzz.bing.himalaya.view.fragment.HomeFragment"
         android:label="HomeFragment" >
         <action
             android:id="@+id/action_homeFragment_to_detailFragment"
@@ -13,6 +13,14 @@
     </fragment>
     <fragment
         android:id="@+id/detailFragment"
-        android:name="zzz.bing.himalaya.ui.fragment.AlbumDetailFragment"
-        android:label="DetailFragment" />
+        android:name="zzz.bing.himalaya.view.fragment.AlbumDetailFragment"
+        android:label="DetailFragment" >
+        <action
+            android:id="@+id/action_detailFragment_to_playerFragment"
+            app:destination="@id/playerFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/playerFragment"
+        android:name="zzz.bing.himalaya.view.fragment.PlayerFragment"
+        android:label="PlayerFragment" />
 </navigation>
