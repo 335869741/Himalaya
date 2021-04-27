@@ -3,16 +3,16 @@ package zzz.bing.himalaya.views
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
-import androidx.viewbinding.ViewBinding
 import zzz.bing.himalaya.databinding.LayoutEmptyBinding
 import zzz.bing.himalaya.databinding.LayoutErrorBinding
 import zzz.bing.himalaya.databinding.LayoutLoadingBinding
 
-abstract class UILoader<T : ViewBinding> @JvmOverloads constructor(
+abstract class UILoader @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr) {
     enum class UIStatus {
@@ -28,7 +28,7 @@ abstract class UILoader<T : ViewBinding> @JvmOverloads constructor(
     private val mEmpty by lazy {
         LayoutEmptyBinding.inflate(LayoutInflater.from(context))
     }
-    private val mSuccess by lazy { getSuccessViewBinding() }
+    private val mSuccess by lazy { getSuccessView() }
 
     private val mUIStatusLiveData by lazy { getUIStatusLiveData() }
 
@@ -37,7 +37,7 @@ abstract class UILoader<T : ViewBinding> @JvmOverloads constructor(
     val loading by lazy { mLoading.root }
     val networkError by lazy { mNetworkError.root }
     val empty by lazy { mEmpty.root }
-    val success by lazy { mSuccess.root }
+    val success by lazy { mSuccess }
 
 
     init {
@@ -55,7 +55,7 @@ abstract class UILoader<T : ViewBinding> @JvmOverloads constructor(
         addView(mNetworkError.root.apply {
             layoutParams = LayoutParams(MATCH_PARENT, MATCH_PARENT)
         })
-        addView(mSuccess.root.apply {
+        addView(mSuccess.apply {
             layoutParams = LayoutParams(MATCH_PARENT, MATCH_PARENT)
         })
         addView(mEmpty.root.apply {
@@ -72,7 +72,7 @@ abstract class UILoader<T : ViewBinding> @JvmOverloads constructor(
                 if (uiStatus == UIStatus.LOADING) VISIBLE else GONE
             mNetworkError.root.visibility =
                 if (uiStatus == UIStatus.NETWORK_ERROR) VISIBLE else GONE
-            mSuccess.root.visibility =
+            mSuccess.visibility =
                 if (uiStatus == UIStatus.SUCCESS) VISIBLE else GONE
             mEmpty.root.visibility =
                 if (uiStatus == UIStatus.EMPTY) VISIBLE else GONE
@@ -80,10 +80,10 @@ abstract class UILoader<T : ViewBinding> @JvmOverloads constructor(
     }
 
     /**
-     * 获得成功时的ui binding
+     * 获得成功时的ui
      * @return T
      */
-    abstract fun getSuccessViewBinding(): T
+    abstract fun getSuccessView(): View
 
     /**
      * 获得状态的liveData

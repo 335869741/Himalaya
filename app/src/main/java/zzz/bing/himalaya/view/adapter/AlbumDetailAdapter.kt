@@ -30,7 +30,7 @@ class AlbumDetailAdapter(private val albumDetailFragment: AlbumDetailFragment) :
         val binding =
             ItemAlbumDetailBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         val detailViewHolder = DetailViewHolder(binding)
-        detailViewHolder.itemView.setOnClickListener { itemView ->
+        detailViewHolder.itemView.setOnClickListener { //itemView ->
             albumDetailFragment.findNavController().also { navController ->
                 navController.navigate(R.id.action_detailFragment_to_playerFragment)
                 val main = albumDetailFragment.requireActivity() as MainActivity

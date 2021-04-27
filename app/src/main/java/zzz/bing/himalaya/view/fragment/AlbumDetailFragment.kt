@@ -4,8 +4,11 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.ChangeBounds
 import androidx.transition.ChangeImageTransform
 import androidx.transition.ChangeTransform
@@ -20,6 +23,8 @@ import zzz.bing.himalaya.view.MainActivity
 import zzz.bing.himalaya.view.adapter.AlbumDetailAdapter
 import zzz.bing.himalaya.utils.*
 import zzz.bing.himalaya.viewmodel.AlbumDetailViewModel
+import zzz.bing.himalaya.views.UILoader
+import zzz.bing.himalaya.views.UILoaderBinding
 import java.util.concurrent.TimeUnit
 
 class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetailViewModel>() {
@@ -34,7 +39,10 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
 
     //是否展开
     private var isExpanded = true
+
     private lateinit var mAlbumDetailAdapter: AlbumDetailAdapter
+    private lateinit var mRecycler : MyRecycler
+
     private val mItemId: Long by lazy { arguments?.getLong(ACTION_ITEM_ID)!! }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,9 +59,13 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
 
     override fun initView() {
         setBarColor()
-        binding.recycler.layoutManager = LinearLayoutManager(requireContext())
+
+        mRecycler = MyRecycler()
+        binding.frame.addView(mRecycler)
+        val recycler = mRecycler.success as RecyclerView
+        recycler.layoutManager = LinearLayoutManager(requireContext())
         mAlbumDetailAdapter = AlbumDetailAdapter(this)
-        binding.recycler.adapter = mAlbumDetailAdapter
+        recycler.adapter = mAlbumDetailAdapter
     }
 
     override fun initData() {
@@ -85,15 +97,39 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
                     isExpanded = false
                 }
             })
-        binding.textOnPlay.setOnClickListener {
-            LogUtils.d(this,"textOnPlay")
+        binding.textOnPlay.setOnClickListener { view ->
+            onPlayClick(view)
         }
-        binding.textOnSelect.setOnClickListener {
-            LogUtils.d(this,"textOnSelect")
+        binding.textOnSelect.setOnClickListener { view ->
+            onSelectListClick(view)
         }
-        binding.textSubscribe.setOnClickListener {
-            LogUtils.d(this,"textSubscribe")
+        binding.textSubscribe.setOnClickListener { view ->
+            onSubscribeClick(view)
         }
+    }
+
+    /**
+     * 订阅事件
+     * @param view View
+     */
+    private fun onSubscribeClick(view: View) {
+        LogUtils.d(this,"onSubscribeClick")
+    }
+
+    /**
+     * 选集事件
+     * @param view View
+     */
+    private fun onSelectListClick(view: View) {
+        LogUtils.d(this,"onSelectListClick")
+    }
+
+    /**
+     * 播放事件
+     * @param view View
+     */
+    private fun onPlayClick(view: View) {
+        LogUtils.d(this,"onPlayClick")
     }
 
     override fun initObserver() {
@@ -104,6 +140,10 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
         }
     }
 
+    /**
+     * 提交
+     * @param tracks List<Track>
+     */
     private fun setTrackS(tracks: List<Track>) {
         mAlbumDetailAdapter.submitList(tracks)
     }
@@ -152,5 +192,13 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
             this += ChangeBounds()
             this += ChangeTransform()
         }
+    }
+
+    inner class MyRecycler : UILoader(requireContext()){
+        override fun getSuccessView() = RecyclerView(requireContext())
+
+        override fun getUIStatusLiveData() = viewModel.netState
+
+        override fun getLifecycleOwner() = viewLifecycleOwner
     }
 }

@@ -21,7 +21,7 @@ class ContentHomeViewModel : ViewModel() {
     private val mAlbumList by lazy { MutableLiveData<List<Album>>() }
 
     val albumList: LiveData<List<Album>> by lazy { mAlbumList }
-    val uiStatusLiveData: LiveData<UILoader.UIStatus> by lazy { mUIStatusLiveData }
+    val uiStatus: LiveData<UILoader.UIStatus> by lazy { mUIStatusLiveData }
 
     /**
      * 获取推荐专辑列表

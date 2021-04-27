@@ -15,7 +15,7 @@ class ContentHomeFragment : BaseUILoaderFragment<FragmentContentHomeBinding, Con
 
     override fun initViewModel() = ViewModelProvider(this).get(ContentHomeViewModel::class.java)
     override fun initViewBinding() = FragmentContentHomeBinding.inflate(layoutInflater)
-    override fun getUIStatusLiveData() = viewModel.uiStatusLiveData
+    override fun getUIStatusLiveData() = viewModel.uiStatus
 
     override fun initView() {
         binding.recycler.adapter = mContentHomeAdapter
@@ -48,11 +48,10 @@ class ContentHomeFragment : BaseUILoaderFragment<FragmentContentHomeBinding, Con
      * 重新加载数据
      */
     private fun reLoadData() {
-        if (viewModel.uiStatusLiveData.value != UILoader.UIStatus.LOADING &&
-                viewModel.uiStatusLiveData.value != UILoader.UIStatus.SUCCESS){
+        if (viewModel.uiStatus.value != UILoader.UIStatus.LOADING &&
+                viewModel.uiStatus.value != UILoader.UIStatus.SUCCESS){
             viewModel.getRecommendAlbum()
         }
-
     }
 
     /**

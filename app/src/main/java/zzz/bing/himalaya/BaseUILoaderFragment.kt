@@ -4,16 +4,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.viewbinding.ViewBinding
 import zzz.bing.himalaya.views.UILoader
+import zzz.bing.himalaya.views.UILoaderBinding
 
 abstract class BaseUILoaderFragment<B: ViewBinding, V: ViewModel> : BaseFragment<B, V>() {
 
     protected val uiLoader by lazy {
-        Loader()
+        LoaderBinding()
     }
 
     override fun onCreateView(
@@ -34,7 +34,7 @@ abstract class BaseUILoaderFragment<B: ViewBinding, V: ViewModel> : BaseFragment
      */
     abstract fun getUIStatusLiveData(): LiveData<UILoader.UIStatus>
 
-    inner class Loader : UILoader<B>(requireContext()){
+    inner class LoaderBinding : UILoaderBinding<B>(requireContext()){
         override fun getSuccessViewBinding() = binding
 
         override fun getUIStatusLiveData() = this@BaseUILoaderFragment.getUIStatusLiveData()
