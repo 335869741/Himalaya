@@ -12,6 +12,7 @@ import com.ximalaya.ting.android.opensdk.datatrasfer.CommonRequest.ITokenStateCh
 import com.ximalaya.ting.android.opensdk.datatrasfer.DeviceInfoProviderDefault
 import com.ximalaya.ting.android.opensdk.datatrasfer.IDeviceInfoProvider
 import com.ximalaya.ting.android.opensdk.httputil.XimalayaException
+import com.ximalaya.ting.android.opensdk.player.XmPlayerManager
 import com.ximalaya.ting.android.opensdk.util.BaseUtil
 import com.ximalaya.ting.android.opensdk.util.Logger
 import com.ximalaya.ting.android.sdkdownloader.XmDownloadManager
@@ -70,7 +71,10 @@ class BaseApplication : Application() {
             AccessTokenManager.getInstanse().init(this)
             if (AccessTokenManager.getInstanse().hasLogin()) {
                 registerLoginTokenChangeListener(this)
-            }
+           }
+
+            //初始化播放器
+            XmPlayerManager.getInstance(this).init()
 
             // 下载sdk
             XmDownloadManager.Builder(this)

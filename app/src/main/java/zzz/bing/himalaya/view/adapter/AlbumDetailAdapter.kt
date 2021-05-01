@@ -3,6 +3,8 @@ package zzz.bing.himalaya.view.adapter
 import android.icu.text.SimpleDateFormat
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -10,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.ximalaya.ting.android.opensdk.model.track.Track
 import zzz.bing.himalaya.R
 import zzz.bing.himalaya.databinding.ItemAlbumDetailBinding
+import zzz.bing.himalaya.utils.timeUtil
 import zzz.bing.himalaya.view.MainActivity
 import zzz.bing.himalaya.view.fragment.AlbumDetailFragment
 import java.util.*
@@ -33,9 +36,8 @@ class AlbumDetailAdapter(private val albumDetailFragment: AlbumDetailFragment) :
         detailViewHolder.itemView.setOnClickListener { //itemView ->
             albumDetailFragment.findNavController().also { navController ->
                 navController.navigate(R.id.action_detailFragment_to_playerFragment)
-                val main = albumDetailFragment.requireActivity() as MainActivity
-                main.getViewModel().playList.postValue(currentList)
-                main.getViewModel().playPosition.postValue(detailViewHolder.adapterPosition)
+                val main = albumDetailFragment.main
+                main.putPlayList(currentList,detailViewHolder.adapterPosition)
             }
         }
         return detailViewHolder
@@ -46,7 +48,7 @@ class AlbumDetailAdapter(private val albumDetailFragment: AlbumDetailFragment) :
         val item = getItem(position)
         binding.textItemPlayCount.text = getPlayCount(item.playCount.toLong())
         binding.textItemTitle.text = item.trackTitle
-        binding.textItemTime.text = getTime(item.duration)
+        binding.textItemTime.text = item.duration.timeUtil()
         binding.textItemDate.text =
             SimpleDateFormat("yyyy-MM-dd", Locale.CHINA).format(item.createdAt)
         binding.textCount.text = position.toString()
@@ -72,32 +74,4 @@ class AlbumDetailAdapter(private val albumDetailFragment: AlbumDetailFragment) :
         } else {
             playCount.toString()
         }
-
-    /**
-     * 时间转换
-     * @param time Int
-     * @return String
-     */
-    private fun getTime(time: Int): String {
-        return if (time < 60) {
-            "00:${makeup(time)}"
-        } else {
-            val sec = time % 60
-            val minute = time / 60
-            "${makeup(minute)}:${makeup(sec)}"
-        }
-    }
-
-    /**
-     * 数字转换
-     * @param number Int
-     * @return String
-     */
-    private fun makeup(number: Int): String {
-        return if (number < 9) {
-            "0$number"
-        } else {
-            number.toString()
-        }
-    }
 }

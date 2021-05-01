@@ -98,6 +98,7 @@ inline fun transitionTogether(crossinline body: TransitionSet.() -> Unit): Trans
         body()
     }
 }
+
 operator fun TransitionSet.plusAssign(transition: Transition) {
     addTransition(transition)
 }
@@ -108,7 +109,35 @@ operator fun TransitionSet.plusAssign(transition: Transition) {
  * @receiver ArrayList<T>
  * @param list List<T>
  */
-fun <T> ArrayList<T>.putAll(list : List<T>){
+fun <T> ArrayList<T>.putAll(list: List<T>) {
     clear()
     addAll(list)
+}
+
+/**
+ * 格式化时间
+ * @return String 300秒转化为 05：00
+ */
+fun Int.timeUtil(): String {
+    return when {
+        this > 59 -> {
+            val min = if (this / 60 > 9) {
+                "${this / 60}"
+            } else {
+                "0${this / 60}"
+            }
+            val s = if (this % 60 > 9) {
+                "${this % 60}"
+            } else {
+                "0${this % 60}"
+            }
+            "$min:$s"
+        }
+        this > 9 -> {
+            "00:${this}"
+        }
+        else -> {
+            "00:0${this}"
+        }
+    }
 }

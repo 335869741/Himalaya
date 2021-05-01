@@ -4,8 +4,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -24,7 +23,6 @@ import zzz.bing.himalaya.view.adapter.AlbumDetailAdapter
 import zzz.bing.himalaya.utils.*
 import zzz.bing.himalaya.viewmodel.AlbumDetailViewModel
 import zzz.bing.himalaya.views.UILoader
-import zzz.bing.himalaya.views.UILoaderBinding
 import java.util.concurrent.TimeUnit
 
 class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetailViewModel>() {
@@ -45,6 +43,8 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
 
     private val mItemId: Long by lazy { arguments?.getLong(ACTION_ITEM_ID)!! }
 
+    val main by lazy { (requireActivity() as MainActivity).viewModel }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -58,8 +58,6 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
     override fun initViewBinding() = FragmentAlbumDetailBinding.inflate(layoutInflater)
 
     override fun initView() {
-        setBarColor()
-
         mRecycler = MyRecycler()
         binding.frame.addView(mRecycler)
         val recycler = mRecycler.success as RecyclerView
@@ -159,6 +157,10 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
         ViewCompat.setTransitionName(binding.imageAlbumIcon, "${TRANSITION_IMAGE_ICON}_${mItemId}")
     }
 
+    override fun onResume() {
+        super.onResume()
+        setBarColor()
+    }
     /**
      * 设置状态栏透明和恢复状态栏
      */

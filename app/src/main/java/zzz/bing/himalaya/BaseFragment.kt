@@ -7,10 +7,12 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import androidx.viewbinding.ViewBinding
+import zzz.bing.himalaya.view.MainActivity
 
 abstract class BaseFragment<B: ViewBinding, V: ViewModel> : Fragment() {
     protected lateinit var binding: B
     protected lateinit var viewModel: V
+    protected val mainViewModel by lazy { (requireActivity() as MainActivity).viewModel }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?

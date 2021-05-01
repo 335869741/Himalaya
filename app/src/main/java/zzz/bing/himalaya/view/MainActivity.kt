@@ -22,6 +22,6 @@ class MainActivity : AppCompatActivity() {
 //        val navHostFragment = supportFragmentManager.findFragmentById(viewId) as NavHostFragment
 //        return navHostFragment.navController
 //    }
-//
-    fun getViewModel() = mViewModel
+
+    val viewModel by lazy { mViewModel }
 }
