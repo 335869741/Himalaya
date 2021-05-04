@@ -5,13 +5,15 @@ import android.widget.ImageView
 import android.widget.SeekBar
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import com.ximalaya.ting.android.opensdk.model.PlayableModel
+import com.ximalaya.ting.android.opensdk.model.track.Track
 import zzz.bing.himalaya.BaseFragment
 import zzz.bing.himalaya.R
 import zzz.bing.himalaya.databinding.FragmentPlayerBinding
 import zzz.bing.himalaya.utils.LogUtils
-import zzz.bing.himalaya.view.adapter.PlayerAdapter
 import zzz.bing.himalaya.utils.putAll
 import zzz.bing.himalaya.utils.timeUtil
+import zzz.bing.himalaya.view.adapter.PlayerAdapter
 import zzz.bing.himalaya.viewmodel.MainViewModel
 import zzz.bing.himalaya.viewmodel.PlayerViewModel
 
@@ -47,9 +49,9 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
         mainViewModel.playList.observe(viewLifecycleOwner) { trackList ->
             mPlayerAdapter.playList.putAll(trackList)
         }
-        mainViewModel.playPosition.observe(viewLifecycleOwner) { position ->
-            binding.pager.setCurrentItem(position, false)
-        }
+//        mainViewModel.playPosition.observe(viewLifecycleOwner) { position ->
+//            binding.pager.setCurrentItem(position, false)
+//        }
         mainViewModel.playerState.observe(viewLifecycleOwner) { playerState ->
             if (playerState != null) {
                 playerStateChange(playerState)
@@ -159,7 +161,24 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
                 LogUtils.d(this@PlayerFragment, "onStopTrackingTouch")
             }
         })
+        mainViewModel.playSwitch = { lastModel, curModel ->
+            switchPlay(lastModel, curModel)
+        }
     }
+
+    private fun switchPlay(lastModel: PlayableModel?, curModel: PlayableModel?) {
+        if (curModel != null && curModel is Track) {
+            binding.textPlayerTitle.text = curModel.trackTitle
+            val position = binding.pager.currentItem
+            binding.pager.currentItem =
+                if (lastModel == null || lastModel.dataId > curModel.dataId) {
+                    position + 1
+                } else {
+                    position - 1
+                }
+        }
+    }
+
 
     /**
      * 用户拖动进度条
@@ -172,10 +191,12 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
     }
 
     override fun initData() {
-        mainViewModel.playManager.getTrack(mainViewModel.playPosition.value ?: 0).also { track ->
-            binding.seekBarTime.max = track.duration
-            LogUtils.d(this, "duration ==> ${track.duration}")
-            binding.textPlayerTitle.text = track.trackTitle
+        mainViewModel.playManager.currSound.also { track ->
+            if (track is Track) {
+                binding.seekBarTime.max = track.duration
+                LogUtils.d(this, "duration ==> ${track.duration}")
+                binding.textPlayerTitle.text = track.trackTitle
+            }
         }
         binding.seekBarTime.progress = 0
         binding.textAfterTime.text =
@@ -208,6 +229,7 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
      * @param view View
      */
     private fun playPreviousClick(view: View) {
+        mainViewModel.playPre()
         LogUtils.d(this, "playPreviousClick")
     }
 
@@ -216,6 +238,7 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
      * @param view View
      */
     private fun playNextClick(view: View) {
+        mainViewModel.playNext()
         LogUtils.d(this, "playNextClick")
     }
 
