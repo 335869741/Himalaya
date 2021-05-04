@@ -52,7 +52,7 @@
         app:layout_constraintGuide_begin="60dp" />
 
     <ImageView
-        android:id="@+id/imagePlayerSort"
+        android:id="@+id/imagePlayerMode"
         android:layout_width="@dimen/player_button_size"
         android:layout_height="@dimen/player_button_size"
         android:contentDescription="@string/sort"
@@ -106,11 +106,11 @@
         android:layout_width="@dimen/player_button_size"
         android:layout_height="@dimen/player_button_size"
         android:contentDescription="@string/previous"
-        app:layout_constraintBottom_toBottomOf="@+id/imagePlayerSort"
+        app:layout_constraintBottom_toBottomOf="@+id/imagePlayerMode"
         app:layout_constraintEnd_toStartOf="@+id/imagePlay"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/imagePlayerSort"
-        app:layout_constraintTop_toTopOf="@+id/imagePlayerSort"
+        app:layout_constraintStart_toEndOf="@+id/imagePlayerMode"
+        app:layout_constraintTop_toTopOf="@+id/imagePlayerMode"
         app:srcCompat="@drawable/selector_player_previous" />
 
     <androidx.viewpager2.widget.ViewPager2

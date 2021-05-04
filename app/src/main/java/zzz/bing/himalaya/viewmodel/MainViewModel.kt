@@ -23,8 +23,19 @@ class MainViewModel : ViewModel(), IXmAdsStatusListener, IXmPlayerStatusListener
         Unusable, Usable, Playing, Stopped
     }
 
-    enum class PlayerMode {
-        Single, SingleLoop, List, ListLoop, Random
+    private val playMode by lazy {
+        mapOf(
+            XmPlayListControl.PlayMode.PLAY_MODEL_LIST to
+                    XmPlayListControl.PlayMode.PLAY_MODEL_LIST_LOOP,
+            XmPlayListControl.PlayMode.PLAY_MODEL_LIST_LOOP to
+                    XmPlayListControl.PlayMode.PLAY_MODEL_SINGLE,
+            XmPlayListControl.PlayMode.PLAY_MODEL_SINGLE to
+                    XmPlayListControl.PlayMode.PLAY_MODEL_SINGLE_LOOP,
+            XmPlayListControl.PlayMode.PLAY_MODEL_SINGLE_LOOP to
+                    XmPlayListControl.PlayMode.PLAY_MODEL_RANDOM,
+            XmPlayListControl.PlayMode.PLAY_MODEL_RANDOM to
+                    XmPlayListControl.PlayMode.PLAY_MODEL_LIST
+        )
     }
 
     //Buffer max = 100 | min = 0
@@ -33,8 +44,8 @@ class MainViewModel : ViewModel(), IXmAdsStatusListener, IXmPlayerStatusListener
     private val mPlayerDuration by lazy { MutableLiveData<Int>() }
     private val mPlayerState by lazy { MutableLiveData<PlayerState>() }
     private val mPlayerMode by lazy {
-        MutableLiveData<PlayerMode>().apply {
-            value = PlayerMode.List
+        MutableLiveData<XmPlayListControl.PlayMode>().apply {
+            value = XmPlayListControl.PlayMode.PLAY_MODEL_LIST
         }
     }
     private val mPlayList by lazy { MutableLiveData<List<Track>>() }
@@ -49,7 +60,6 @@ class MainViewModel : ViewModel(), IXmAdsStatusListener, IXmPlayerStatusListener
     val playerState: LiveData<PlayerState> by lazy { mPlayerState }
     val playerMode by lazy {
         Transformations.map(mPlayerMode) { playerMode ->
-            setPlayMode(playerMode)
             playerMode
         }
     }
@@ -58,28 +68,10 @@ class MainViewModel : ViewModel(), IXmAdsStatusListener, IXmPlayerStatusListener
     val playerNow: LiveData<Int> by lazy { mPlayerNow }
     val playerDuration: LiveData<Int> by lazy { mPlayerDuration }
 
-
-    /**
-     * 设置播放循环方式
-     */
-    private fun setPlayMode(playerMode: PlayerMode) {
-        when (playerMode) {
-            PlayerMode.List -> {
-                playManager.playMode = XmPlayListControl.PlayMode.PLAY_MODEL_LIST
-            }
-            PlayerMode.ListLoop -> {
-                playManager.playMode = XmPlayListControl.PlayMode.PLAY_MODEL_LIST_LOOP
-            }
-            PlayerMode.Single -> {
-                playManager.playMode = XmPlayListControl.PlayMode.PLAY_MODEL_SINGLE
-            }
-            PlayerMode.SingleLoop -> {
-                playManager.playMode = XmPlayListControl.PlayMode.PLAY_MODEL_SINGLE_LOOP
-            }
-            PlayerMode.Random -> {
-                playManager.playMode = XmPlayListControl.PlayMode.PLAY_MODEL_RANDOM
-            }
-        }
+    fun playModeSwitch() {
+        val model = playMode[playManager.playMode] ?: XmPlayListControl.PlayMode.PLAY_MODEL_LIST
+        mPlayerMode.postValue(model)
+        playManager.playMode = model
     }
 
     /**

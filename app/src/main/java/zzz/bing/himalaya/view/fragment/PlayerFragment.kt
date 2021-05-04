@@ -1,12 +1,12 @@
 package zzz.bing.himalaya.view.fragment
 
 import android.view.View
-import android.widget.ImageView
 import android.widget.SeekBar
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.ximalaya.ting.android.opensdk.model.PlayableModel
 import com.ximalaya.ting.android.opensdk.model.track.Track
+import com.ximalaya.ting.android.opensdk.player.service.XmPlayListControl
 import zzz.bing.himalaya.BaseFragment
 import zzz.bing.himalaya.R
 import zzz.bing.himalaya.databinding.FragmentPlayerBinding
@@ -24,16 +24,6 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
     private var mIsUserTouch = false
     private var mInit = false
     private var mProgress = 0
-
-    private val mPlayModeList by lazy {
-        listOf(
-            ContextCompat.getDrawable(requireContext(), R.drawable.selector_player_sort_descending),
-            ContextCompat.getDrawable(requireContext(), R.drawable.selector_player_sort_ascending),
-            ContextCompat.getDrawable(requireContext(), R.drawable.selector_play_mode_loop),
-            ContextCompat.getDrawable(requireContext(), R.drawable.selector_play_mode_loop_one),
-            ContextCompat.getDrawable(requireContext(), R.drawable.selector_play_mode_random)
-        )
-    }
 
     override fun initViewModel() = ViewModelProvider(this).get(PlayerViewModel::class.java)
 
@@ -68,6 +58,60 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
         mainViewModel.playerDuration.observe(viewLifecycleOwner) {
             val duration = if (it == null || it < 0) 0 else it
             timeDuration(duration)
+        }
+        mainViewModel.playerMode.observe(viewLifecycleOwner) { it ->
+            it?.also { playMode ->
+                playModeChange(playMode)
+            }
+        }
+    }
+
+    /**
+     * 切换播放状态
+     * @param playMode PlayMode
+     */
+    private fun playModeChange(playMode: XmPlayListControl.PlayMode) {
+        when (playMode) {
+            XmPlayListControl.PlayMode.PLAY_MODEL_LIST -> {
+                binding.imagePlayerMode.setImageDrawable(
+                    ContextCompat.getDrawable(
+                        requireContext(),
+                        R.drawable.selector_player_sort_descending
+                    )
+                )
+            }
+            XmPlayListControl.PlayMode.PLAY_MODEL_LIST_LOOP -> {
+                binding.imagePlayerMode.setImageDrawable(
+                    ContextCompat.getDrawable(
+                        requireContext(),
+                        R.drawable.selector_play_mode_loop
+                    )
+                )
+            }
+            XmPlayListControl.PlayMode.PLAY_MODEL_SINGLE -> {
+                binding.imagePlayerMode.setImageDrawable(
+                    ContextCompat.getDrawable(
+                        requireContext(),
+                        R.drawable.selector_player_list
+                    )
+                )
+            }
+            XmPlayListControl.PlayMode.PLAY_MODEL_SINGLE_LOOP -> {
+                binding.imagePlayerMode.setImageDrawable(
+                    ContextCompat.getDrawable(
+                        requireContext(),
+                        R.drawable.selector_play_mode_loop_one
+                    )
+                )
+            }
+            else -> {
+                binding.imagePlayerMode.setImageDrawable(
+                    ContextCompat.getDrawable(
+                        requireContext(),
+                        R.drawable.selector_play_mode_random
+                    )
+                )
+            }
         }
     }
 
@@ -140,7 +184,7 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
         binding.imagePlayerPrevious.setOnClickListener { view ->
             playPreviousClick(view)
         }
-        binding.imagePlayerSort.setOnClickListener { view ->
+        binding.imagePlayerMode.setOnClickListener { view ->
             playSortClick(view)
         }
         binding.seekBarTime.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -166,6 +210,11 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
         }
     }
 
+    /**
+     * 歌曲切换事件
+     * @param lastModel PlayableModel?
+     * @param curModel PlayableModel?
+     */
     private fun switchPlay(lastModel: PlayableModel?, curModel: PlayableModel?) {
         if (curModel != null && curModel is Track) {
             binding.textPlayerTitle.text = curModel.trackTitle
@@ -212,16 +261,7 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
     private fun playSortClick(view: View) {
 //        TODO("Not yet implemented")
         LogUtils.d(this, "playSortClick")
-
-        (view as ImageView).setImageDrawable(
-            when ((view).drawable) {
-                mPlayModeList[0] -> mPlayModeList[1]
-                mPlayModeList[1] -> mPlayModeList[2]
-                mPlayModeList[2] -> mPlayModeList[3]
-                mPlayModeList[3] -> mPlayModeList[4]
-                else -> mPlayModeList[0]
-            }
-        )
+        mainViewModel.playModeSwitch()
     }
 
     /**
