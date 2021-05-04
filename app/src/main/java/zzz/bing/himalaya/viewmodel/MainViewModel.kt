@@ -20,7 +20,7 @@ import zzz.bing.himalaya.utils.LogUtils
 class MainViewModel : ViewModel(), IXmAdsStatusListener, IXmPlayerStatusListener {
 
     enum class PlayerState {
-        Unusable, Playing, Stopped
+        Unusable, Usable, Playing, Stopped
     }
 
     enum class PlayerMode {
@@ -40,10 +40,11 @@ class MainViewModel : ViewModel(), IXmAdsStatusListener, IXmPlayerStatusListener
     private val mPlayList by lazy { MutableLiveData<List<Track>>() }
     private val mPlayPosition by lazy { MutableLiveData<Int>() }
 
-    val play: XmPlayerManager by lazy {
-        XmPlayerManager.getInstance(BaseApplication.getContext()).also { xmPlayerManager ->
-            xmPlayerManager.addAdsStatusListener(this)
-            xmPlayerManager.addPlayerStatusListener(this)
+    val playManager: XmPlayerManager by lazy {
+        XmPlayerManager.getInstance(BaseApplication.getContext()).apply {
+            addAdsStatusListener(this@MainViewModel)
+            addPlayerStatusListener(this@MainViewModel)
+            setBreakpointResume(false)
         }
     }
     val playerState: LiveData<PlayerState> by lazy { mPlayerState }
@@ -58,14 +59,14 @@ class MainViewModel : ViewModel(), IXmAdsStatusListener, IXmPlayerStatusListener
     val playerBuffer: LiveData<Int> by lazy { mPlayerBuffer }
     val playerNow: LiveData<Int> by lazy { mPlayerNow }
     val playerDuration: LiveData<Int> by lazy { mPlayerDuration }
-    val playVoice: Track
-        get() {
-            return if (playList.value != null && playPosition.value != null) {
-                playList.value!![playPosition.value!!]
-            } else {//sudo apt-get remove --purge postgresql-13
-                Track()
-            }
-        }
+//    val playVoice: Track
+//        get() {
+//            return if (playList.value != null && playPosition.value != null) {
+//                playList.value!![playPosition.value!!]
+//            } else {//sudo apt-get remove --purge postgresql-13
+//                Track()
+//            }
+//        }
 
     /**
      * 设置播放循环方式
@@ -74,22 +75,22 @@ class MainViewModel : ViewModel(), IXmAdsStatusListener, IXmPlayerStatusListener
         when (playerMode) {
             PlayerMode.InvertedSequence -> {
                 invertedSequence()
-                play.playMode = XmPlayListControl.PlayMode.PLAY_MODEL_LIST
+                playManager.playMode = XmPlayListControl.PlayMode.PLAY_MODEL_LIST
             }
             PlayerMode.List -> {
-                play.playMode = XmPlayListControl.PlayMode.PLAY_MODEL_LIST
+                playManager.playMode = XmPlayListControl.PlayMode.PLAY_MODEL_LIST
             }
             PlayerMode.ListLoop -> {
-                play.playMode = XmPlayListControl.PlayMode.PLAY_MODEL_LIST_LOOP
+                playManager.playMode = XmPlayListControl.PlayMode.PLAY_MODEL_LIST_LOOP
             }
             PlayerMode.Single -> {
-                play.playMode = XmPlayListControl.PlayMode.PLAY_MODEL_SINGLE
+                playManager.playMode = XmPlayListControl.PlayMode.PLAY_MODEL_SINGLE
             }
             PlayerMode.SingleLoop -> {
-                play.playMode = XmPlayListControl.PlayMode.PLAY_MODEL_SINGLE_LOOP
+                playManager.playMode = XmPlayListControl.PlayMode.PLAY_MODEL_SINGLE_LOOP
             }
             PlayerMode.Random -> {
-                play.playMode = XmPlayListControl.PlayMode.PLAY_MODEL_RANDOM
+                playManager.playMode = XmPlayListControl.PlayMode.PLAY_MODEL_RANDOM
             }
         }
     }
@@ -109,32 +110,32 @@ class MainViewModel : ViewModel(), IXmAdsStatusListener, IXmPlayerStatusListener
     fun putPlayList(list: List<Track>, position: Int) {
         mPlayList.postValue(list)
         mPlayPosition.postValue(position)
-        play.setPlayList(list, position)
+        playManager.setPlayList(list, position)
     }
 
     /**
      * 开始播放
      */
     fun play() {
-        if (!play.isPlaying
-            && (play.playerStatus == PlayerConstants.STATE_PAUSED
-                    || play.playerStatus == PlayerConstants.STATE_PREPARED)
+        if (!playManager.isPlaying
+            && (playManager.playerStatus == PlayerConstants.STATE_PAUSED
+                    || playManager.playerStatus == PlayerConstants.STATE_PREPARED)
         ) {
-            play.play()
+            playManager.play()
             mPlayerState.postValue(PlayerState.Playing)
-            LogUtils.i(this, "playerStart | isPlaying == ${play.isPlaying}")
+            LogUtils.i(this, "playerStart | isPlaying == ${playManager.isPlaying}")
         }
-        LogUtils.i(this, "playerStatus ==> ${play.playerStatus}")
+        LogUtils.i(this, "playerStatus ==> ${playManager.playerStatus}")
     }
 
     /**
      * 停止播放
      */
     fun stop() {
-        if (play.isPlaying) {
-            play.pause()
+        if (playManager.isPlaying) {
+            playManager.pause()
             mPlayerState.postValue(PlayerState.Stopped)
-            LogUtils.i(this, "playerStop | isPlaying == ${play.isPlaying}")
+            LogUtils.i(this, "playerStop | isPlaying == ${playManager.isPlaying}")
         }
     }
 
@@ -189,12 +190,12 @@ class MainViewModel : ViewModel(), IXmAdsStatusListener, IXmPlayerStatusListener
 
     override fun onSoundPlayComplete() {
         LogUtils.d(this, "播放器 == onSoundPlayComplete")
-        mPlayerState.postValue(PlayerState.Stopped)
+        mPlayerState.postValue(PlayerState.Usable)
     }
 
     override fun onSoundPrepared() {
         LogUtils.d(this, "播放器 == onSoundPrepared")
-        mPlayerState.postValue(PlayerState.Stopped)
+        mPlayerState.postValue(PlayerState.Usable)
     }
 
     override fun onSoundSwitch(p0: PlayableModel?, p1: PlayableModel?) {
