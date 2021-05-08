@@ -9,6 +9,8 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.ximalaya.ting.android.opensdk.model.album.Album
 import com.ximalaya.ting.android.opensdk.model.track.Track
+import java.util.*
+import kotlin.collections.ArrayList
 
 /**
  *
@@ -140,4 +142,13 @@ fun Int.timeUtil(): String {
             "00:0${this}"
         }
     }
+}
+
+fun List<Track>.trackSearch(dataId: Long): Int {
+    for ((index, item) in withIndex()) {
+        if (item.dataId == dataId){
+            return index
+        }
+    }
+    return -1
 }

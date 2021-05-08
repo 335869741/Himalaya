@@ -6,4 +6,6 @@
     <dimen name="spacing_tiny">4dp</dimen>
     <dimen name="player_button_size">50dp</dimen>
     <dimen name="timeSize">40dp</dimen>
+    <dimen name="iconSize">24dp</dimen>
+
 </resources>

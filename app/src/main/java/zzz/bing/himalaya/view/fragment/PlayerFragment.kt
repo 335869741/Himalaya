@@ -1,9 +1,12 @@
 package zzz.bing.himalaya.view.fragment
 
+import android.view.Gravity
 import android.view.View
+import android.widget.PopupWindow
 import android.widget.SeekBar
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.ximalaya.ting.android.opensdk.model.PlayableModel
 import com.ximalaya.ting.android.opensdk.model.track.Track
 import com.ximalaya.ting.android.opensdk.player.service.XmPlayListControl
@@ -13,9 +16,12 @@ import zzz.bing.himalaya.databinding.FragmentPlayerBinding
 import zzz.bing.himalaya.utils.LogUtils
 import zzz.bing.himalaya.utils.putAll
 import zzz.bing.himalaya.utils.timeUtil
+import zzz.bing.himalaya.utils.trackSearch
 import zzz.bing.himalaya.view.adapter.PlayerAdapter
+import zzz.bing.himalaya.view.adapter.PopupPlayListAdapter
 import zzz.bing.himalaya.viewmodel.MainViewModel
 import zzz.bing.himalaya.viewmodel.PlayerViewModel
+import zzz.bing.himalaya.views.PlayListPopup
 
 class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
 
@@ -25,6 +31,24 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
     private var mInit = false
     private var mProgress = 0
 
+    /**
+     * 使用懒加载初始化
+     * 同时设定监听
+     * create时初始化会导致高度值为0
+     */
+    private val mPopupPlaylist by lazy {
+        PlayListPopup(binding.root.height / 3 * 2, binding.root).also { popupWindow ->
+            popupWindow.TextBottom.setOnClickListener {
+                popupBottomTextEvent(popupWindow)
+            }
+            popupWindow.recycler.adapter = mPopupPlayListAdapter
+            popupWindow.recycler.layoutManager = LinearLayoutManager(requireContext())
+        }
+    }
+    private val mPopupPlayListAdapter by lazy {
+        PopupPlayListAdapter().apply { submitList(mainViewModel.playList.value) }
+    }
+
     override fun initViewModel() = ViewModelProvider(this).get(PlayerViewModel::class.java)
 
     override fun initViewBinding() = FragmentPlayerBinding.inflate(layoutInflater)
@@ -32,16 +56,12 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
     override fun initView() {
         mPlayerAdapter = PlayerAdapter(requireActivity())
         binding.pager.adapter = mPlayerAdapter
-
     }
 
     override fun initObserver() {
         mainViewModel.playList.observe(viewLifecycleOwner) { trackList ->
             mPlayerAdapter.playList.putAll(trackList)
         }
-//        mainViewModel.playPosition.observe(viewLifecycleOwner) { position ->
-//            binding.pager.setCurrentItem(position, false)
-//        }
         mainViewModel.playerState.observe(viewLifecycleOwner) { playerState ->
             if (playerState != null) {
                 playerStateChange(playerState)
@@ -59,7 +79,7 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
             val duration = if (it == null || it < 0) 0 else it
             timeDuration(duration)
         }
-        mainViewModel.playerMode.observe(viewLifecycleOwner) { it ->
+        mainViewModel.playerMode.observe(viewLifecycleOwner) {
             it?.also { playMode ->
                 playModeChange(playMode)
             }
@@ -211,6 +231,16 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
     }
 
     /**
+     * popupWindow底部text的点击事件
+     * @param popupWindow PopupWindow
+     */
+    private fun popupBottomTextEvent(popupWindow: PopupWindow) {
+        if (popupWindow.isShowing) {
+            popupWindow.dismiss()
+        }
+    }
+
+    /**
      * 歌曲切换事件
      * @param lastModel PlayableModel?
      * @param curModel PlayableModel?
@@ -218,13 +248,20 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
     private fun switchPlay(lastModel: PlayableModel?, curModel: PlayableModel?) {
         if (curModel != null && curModel is Track) {
             binding.textPlayerTitle.text = curModel.trackTitle
-            val position = binding.pager.currentItem
-            binding.pager.currentItem =
-                if (lastModel == null || lastModel.dataId > curModel.dataId) {
-                    position + 1
+            val position = mainViewModel.playList.value.let {
+                val index = it?.trackSearch(curModel.dataId)
+                if (index != null && index != -1) {
+                    index
                 } else {
-                    position - 1
+                    0
                 }
+            }
+            binding.pager.currentItem = position
+            if (isVisible) {
+                mPopupPlayListAdapter.position = position
+                mPopupPlaylist.recycler.scrollToPosition(position)
+                mPopupPlayListAdapter.notifyDataSetChanged()
+            }
         }
     }
 
@@ -287,7 +324,23 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
      * @param view View
      */
     private fun playListClick(view: View) {
-        LogUtils.d(this, "playListClick")
+        if (!mPopupPlaylist.isShowing) {
+            mPopupPlaylist.showAtLocation(view, Gravity.BOTTOM, 0, 0)
+            if (mainViewModel.playManager.currSound is Track) {
+                val position = mainViewModel.playList.let { liveData ->
+                    val position =
+                        liveData.value?.trackSearch(mainViewModel.playManager.currSound.dataId)
+                    if (position == null || position == -1) {
+                        0
+                    } else {
+                        position
+                    }
+                }
+                mPopupPlayListAdapter.position = position
+                mPopupPlaylist.recycler.scrollToPosition(position)
+            }
+            LogUtils.d(this, "playListClick")
+        }
     }
 
     /**
@@ -303,10 +356,19 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
         }
     }
 
+    /**
+     *
+     * @param play Function0<Unit>
+     */
     private fun initPlay(play: () -> Unit) {
         if (!mInit) {
             mInit = true
             play()
         }
+    }
+
+    override fun onBackPressed() {
+        mPopupPlaylist.backDismiss()
+        LogUtils.d(this, "onBackPressed dismiss")
     }
 }

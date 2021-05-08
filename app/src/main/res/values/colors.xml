@@ -13,4 +13,5 @@
     <color name="gray">#f0575757</color>
     <color name="gray_transparent">#aa575757</color>
     <color name="littleWhite">#FFEFEFEF</color>
+    <color name="popupTextColor">#7D828C</color>
 </resources>
