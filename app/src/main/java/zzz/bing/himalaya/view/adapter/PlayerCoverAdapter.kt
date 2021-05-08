@@ -19,9 +19,10 @@ import zzz.bing.himalaya.databinding.FragmentPlayCoverBinding
 import zzz.bing.himalaya.utils.ImageBlur
 import zzz.bing.himalaya.utils.getImageUrl
 
-class PlayerAdapter(requireActivity: FragmentActivity) : FragmentStateAdapter(requireActivity) {
+class PlayerCoverAdapter(requireActivity: FragmentActivity) :
+    FragmentStateAdapter(requireActivity) {
 
-    companion object{
+    companion object {
         const val IMAGE_COVER_URL = "image_cover_url"
     }
 
@@ -29,7 +30,7 @@ class PlayerAdapter(requireActivity: FragmentActivity) : FragmentStateAdapter(re
 
     override fun getItemCount() = playList.size
 
-    override fun createFragment(position: Int) : Fragment {
+    override fun createFragment(position: Int): Fragment {
         return PlayFragment().apply {
             arguments = Bundle().also { bundle ->
                 bundle.putString(IMAGE_COVER_URL, playList[position].getImageUrl())

@@ -10,27 +10,32 @@ import androidx.recyclerview.widget.RecyclerView
 import com.ximalaya.ting.android.opensdk.model.track.Track
 import zzz.bing.himalaya.R
 import zzz.bing.himalaya.databinding.ItemPopupPlayListBinding
+import zzz.bing.himalaya.view.fragment.PlayerFragment
 
-class PopupPlayListAdapter : ListAdapter<Track, PopupPlayListAdapter.PopupPlayListViewHolder>(
-    object : DiffUtil.ItemCallback<Track>() {
-        override fun areItemsTheSame(oldItem: Track, newItem: Track): Boolean {
-            return oldItem.dataId == newItem.dataId
+class PopupPlayListAdapter(val fragment: PlayerFragment) :
+    ListAdapter<Track, PopupPlayListAdapter.PopupPlayListViewHolder>(
+        object : DiffUtil.ItemCallback<Track>() {
+            override fun areItemsTheSame(oldItem: Track, newItem: Track): Boolean {
+                return oldItem.dataId == newItem.dataId
+            }
+
+            override fun areContentsTheSame(oldItem: Track, newItem: Track): Boolean {
+                return oldItem.dataId == newItem.dataId
+            }
         }
+    ) {
 
-        override fun areContentsTheSame(oldItem: Track, newItem: Track): Boolean {
-            return oldItem.dataId == newItem.dataId
-        }
-    }
-) {
-
-    var position = 0
+    var playPosition = 0
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PopupPlayListViewHolder {
         val itemBinding =
             ItemPopupPlayListBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         val viewHolder = PopupPlayListViewHolder(itemBinding)
         viewHolder.itemView.setOnClickListener {
-
+            val adapterPosition = viewHolder.adapterPosition
+            if (playPosition != adapterPosition) {
+                fragment.playToListPosition(adapterPosition)
+            }
         }
         return viewHolder
     }
@@ -40,7 +45,7 @@ class PopupPlayListAdapter : ListAdapter<Track, PopupPlayListAdapter.PopupPlayLi
         val binding = holder.binding
         binding.textPlayName.text = item.trackTitle
 
-        if (this.position == position) {
+        if (this.playPosition == position) {
             binding.textPlayName.setTextColor(
                 ContextCompat.getColor(holder.itemView.context, R.color.main)
             )

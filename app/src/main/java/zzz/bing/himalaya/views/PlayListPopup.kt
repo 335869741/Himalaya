@@ -1,12 +1,12 @@
 package zzz.bing.himalaya.views
 
 import android.animation.ObjectAnimator
-import android.annotation.SuppressLint
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.PopupWindow
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -14,14 +14,13 @@ import kotlinx.coroutines.*
 import zzz.bing.himalaya.BaseApplication
 import zzz.bing.himalaya.R
 
-
-@SuppressLint("InflateParams")
 class PlayListPopup(height: Int, view: View) :
     PopupWindow(
         LayoutInflater.from(BaseApplication.getContext())
             .inflate(R.layout.popup_play_list, null),
         ViewGroup.LayoutParams.MATCH_PARENT,
         height
+//        ViewGroup.LayoutParams.WRAP_CONTENT
     ) {
 
     init {
@@ -39,13 +38,17 @@ class PlayListPopup(height: Int, view: View) :
     }
 
     val recycler by lazy { contentView.findViewById<RecyclerView>(R.id.recycler) }
-    val TextBottom by lazy { contentView.findViewById<TextView>(R.id.textBottom)  }
+    val textExit by lazy { contentView.findViewById<TextView>(R.id.textBottom) }
+    val textPlayMode by lazy { contentView.findViewById<TextView>(R.id.textPlayMode) }
+    val textPlayOrder by lazy { contentView.findViewById<TextView>(R.id.textPlayOrder) }
+    val imagePlayMode by lazy { contentView.findViewById<ImageView>(R.id.imagePlayMode) }
+    val imagePlayOrder by lazy { contentView.findViewById<ImageView>(R.id.imagePlayOrder) }
 
     override fun showAtLocation(parent: View?, gravity: Int, x: Int, y: Int) {
         super.showAtLocation(parent, gravity, x, y)
         if (!popAnime.isRunning) {
             popAnime.setFloatValues(height.toFloat(), 0f)
-            backgroundAnime.setFloatValues(1f,0.7f)
+            backgroundAnime.setFloatValues(1f, 0.7f)
             popAnime.start()
             backgroundAnime.start()
         }

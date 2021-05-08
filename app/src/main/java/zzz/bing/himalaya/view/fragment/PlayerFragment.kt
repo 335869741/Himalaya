@@ -1,7 +1,9 @@
 package zzz.bing.himalaya.view.fragment
 
+import android.graphics.drawable.Drawable
 import android.view.Gravity
 import android.view.View
+import android.view.ViewTreeObserver
 import android.widget.PopupWindow
 import android.widget.SeekBar
 import androidx.core.content.ContextCompat
@@ -17,16 +19,19 @@ import zzz.bing.himalaya.utils.LogUtils
 import zzz.bing.himalaya.utils.putAll
 import zzz.bing.himalaya.utils.timeUtil
 import zzz.bing.himalaya.utils.trackSearch
-import zzz.bing.himalaya.view.adapter.PlayerAdapter
+import zzz.bing.himalaya.view.adapter.PlayerCoverAdapter
 import zzz.bing.himalaya.view.adapter.PopupPlayListAdapter
 import zzz.bing.himalaya.viewmodel.MainViewModel
 import zzz.bing.himalaya.viewmodel.PlayerViewModel
 import zzz.bing.himalaya.views.PlayListPopup
 
+@Suppress("UNNECESSARY_SAFE_CALL")
 class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
 
-    private lateinit var mPlayerAdapter: PlayerAdapter
+    private lateinit var mPlayerCoverAdapter: PlayerCoverAdapter
+    private lateinit var mPopupPlaylist: PlayListPopup
 
+    private var mIsInitPopup = false
     private var mIsUserTouch = false
     private var mInit = false
     private var mProgress = 0
@@ -36,31 +41,20 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
      * 同时设定监听
      * create时初始化会导致高度值为0
      */
-    private val mPopupPlaylist by lazy {
-        PlayListPopup(binding.root.height / 3 * 2, binding.root).also { popupWindow ->
-            popupWindow.TextBottom.setOnClickListener {
-                popupBottomTextEvent(popupWindow)
-            }
-            popupWindow.recycler.adapter = mPopupPlayListAdapter
-            popupWindow.recycler.layoutManager = LinearLayoutManager(requireContext())
-        }
-    }
-    private val mPopupPlayListAdapter by lazy {
-        PopupPlayListAdapter().apply { submitList(mainViewModel.playList.value) }
-    }
+    private val mPopupPlayListAdapter by lazy { PopupPlayListAdapter(this) }
 
     override fun initViewModel() = ViewModelProvider(this).get(PlayerViewModel::class.java)
 
     override fun initViewBinding() = FragmentPlayerBinding.inflate(layoutInflater)
 
     override fun initView() {
-        mPlayerAdapter = PlayerAdapter(requireActivity())
-        binding.pager.adapter = mPlayerAdapter
+        mPlayerCoverAdapter = PlayerCoverAdapter(requireActivity())
+        binding.pager.adapter = mPlayerCoverAdapter
     }
 
     override fun initObserver() {
         mainViewModel.playList.observe(viewLifecycleOwner) { trackList ->
-            mPlayerAdapter.playList.putAll(trackList)
+            playListChange(trackList ?: emptyList())
         }
         mainViewModel.playerState.observe(viewLifecycleOwner) { playerState ->
             if (playerState != null) {
@@ -84,6 +78,48 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
                 playModeChange(playMode)
             }
         }
+        mainViewModel.playOrder.observe(viewLifecycleOwner) {
+            if (mIsInitPopup) {
+                popupOrder(it ?: true)
+            }
+        }
+    }
+
+    /**
+     * 播放列表内容改变
+     * @param list List<Track>
+     */
+    private fun playListChange(list: List<Track>) {
+        mPlayerCoverAdapter.playList.putAll(list)
+        if (mIsInitPopup) {
+            mPopupPlayListAdapter.submitList(list)
+            val position = list.trackSearch(mainViewModel.playManager.currSound.dataId)
+            mPopupPlayListAdapter.playPosition = position
+            if (mPopupPlaylist.isShowing) {
+                mPopupPlayListAdapter.notifyDataSetChanged()
+                mPopupPlaylist.recycler.scrollToPosition(position)
+            }
+            LogUtils.d(this, "position ==> $position")
+        }
+    }
+
+    /**
+     * 排序ui更改
+     * @param order Boolean
+     */
+    private fun popupOrder(order: Boolean) {
+        //true为顺序 false为逆序
+        if (order) {
+            mPopupPlaylist.imagePlayOrder.setImageDrawable(
+                getDrawable(R.drawable.selector_player_sort_descending)
+            )
+            mPopupPlaylist.textPlayOrder.text = "顺序播放"
+        } else {
+            mPopupPlaylist.imagePlayOrder.setImageDrawable(
+                getDrawable(R.drawable.selector_player_sort_ascending)
+            )
+            mPopupPlaylist.textPlayOrder.text = "逆序播放"
+        }
     }
 
     /**
@@ -91,48 +127,62 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
      * @param playMode PlayMode
      */
     private fun playModeChange(playMode: XmPlayListControl.PlayMode) {
-        when (playMode) {
-            XmPlayListControl.PlayMode.PLAY_MODEL_LIST -> {
-                binding.imagePlayerMode.setImageDrawable(
-                    ContextCompat.getDrawable(
-                        requireContext(),
-                        R.drawable.selector_player_sort_descending
-                    )
-                )
+        binding.imagePlayerMode.setImageDrawable(
+            when (playMode) {
+                XmPlayListControl.PlayMode.PLAY_MODEL_LIST -> {
+                    getDrawable(R.drawable.selector_player_sort_descending)
+                }
+                XmPlayListControl.PlayMode.PLAY_MODEL_LIST_LOOP -> {
+                    getDrawable(R.drawable.selector_play_mode_loop)
+                }
+                XmPlayListControl.PlayMode.PLAY_MODEL_SINGLE_LOOP -> {
+                    getDrawable(R.drawable.selector_play_mode_loop_one)
+                }
+                else -> {
+                    getDrawable(R.drawable.selector_play_mode_random)
+                }
             }
-            XmPlayListControl.PlayMode.PLAY_MODEL_LIST_LOOP -> {
-                binding.imagePlayerMode.setImageDrawable(
-                    ContextCompat.getDrawable(
-                        requireContext(),
-                        R.drawable.selector_play_mode_loop
-                    )
-                )
-            }
-            XmPlayListControl.PlayMode.PLAY_MODEL_SINGLE -> {
-                binding.imagePlayerMode.setImageDrawable(
-                    ContextCompat.getDrawable(
-                        requireContext(),
-                        R.drawable.selector_player_list
-                    )
-                )
-            }
-            XmPlayListControl.PlayMode.PLAY_MODEL_SINGLE_LOOP -> {
-                binding.imagePlayerMode.setImageDrawable(
-                    ContextCompat.getDrawable(
-                        requireContext(),
-                        R.drawable.selector_play_mode_loop_one
-                    )
-                )
-            }
-            else -> {
-                binding.imagePlayerMode.setImageDrawable(
-                    ContextCompat.getDrawable(
-                        requireContext(),
-                        R.drawable.selector_play_mode_random
-                    )
-                )
+        )
+        popupPlayMode(playMode)
+    }
+
+    /**
+     *
+     * @param playMode PlayMode
+     */
+    private fun popupPlayMode(playMode: XmPlayListControl.PlayMode) {
+        if (mIsInitPopup) {
+            when (playMode) {
+                XmPlayListControl.PlayMode.PLAY_MODEL_LIST -> {
+                    mPopupPlaylist.imagePlayMode.setImageDrawable(getDrawable(R.drawable.selector_player_sort_descending))
+                    mPopupPlaylist.textPlayMode.text = "列表播放"
+                }
+                XmPlayListControl.PlayMode.PLAY_MODEL_LIST_LOOP -> {
+                    mPopupPlaylist.imagePlayMode.setImageDrawable(getDrawable(R.drawable.selector_play_mode_loop))
+                    mPopupPlaylist.textPlayMode.text = "列表循环"
+                }
+                XmPlayListControl.PlayMode.PLAY_MODEL_SINGLE_LOOP -> {
+                    mPopupPlaylist.imagePlayMode.setImageDrawable(getDrawable(R.drawable.selector_play_mode_loop_one))
+                    mPopupPlaylist.textPlayMode.text = "单曲循环"
+                }
+                else -> {
+                    mPopupPlaylist.imagePlayMode.setImageDrawable(getDrawable(R.drawable.selector_play_mode_random))
+                    mPopupPlaylist.textPlayMode.text = "随机播放"
+                }
             }
         }
+    }
+
+    /**
+     * 用资源id获取Drawable
+     * @param id Int
+     * @return Drawable?
+     */
+    private fun getDrawable(id: Int): Drawable? {
+        return ContextCompat.getDrawable(
+            requireContext(),
+            id
+        )
     }
 
     /**
@@ -192,20 +242,20 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
     }
 
     override fun initListener() {
-        binding.imagePlay.setOnClickListener { view ->
-            playClick(view)
+        binding.imagePlay.setOnClickListener {
+            playClick()
         }
         binding.imagePlayerList.setOnClickListener { view ->
             playListClick(view)
         }
-        binding.imagePlayerNext.setOnClickListener { view ->
-            playNextClick(view)
+        binding.imagePlayerNext.setOnClickListener {
+            playNextClick()
         }
-        binding.imagePlayerPrevious.setOnClickListener { view ->
-            playPreviousClick(view)
+        binding.imagePlayerPrevious.setOnClickListener {
+            playPreviousClick()
         }
-        binding.imagePlayerMode.setOnClickListener { view ->
-            playSortClick(view)
+        binding.imagePlayerMode.setOnClickListener {
+            playModeClick()
         }
         binding.seekBarTime.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -225,16 +275,53 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
                 LogUtils.d(this@PlayerFragment, "onStopTrackingTouch")
             }
         })
-        mainViewModel.playSwitch = { lastModel, curModel ->
-            switchPlay(lastModel, curModel)
+        mainViewModel.playSwitch = { _, curModel ->
+            switchPlay(curModel)
         }
+        binding.root.viewTreeObserver.addOnGlobalLayoutListener(object :
+            ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                val height = binding.root.height
+                if (height != 0) {
+                    initPopupPlaylist(height)
+                    binding.root.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                }
+            }
+        })
     }
 
     /**
-     * popupWindow底部text的点击事件
+     * 初始化弹出的播放列表
+     * @param height Int
+     */
+    private fun initPopupPlaylist(height: Int) {
+        mPopupPlaylist = PlayListPopup(height / 3 * 2, binding.root)
+        mIsInitPopup = true
+        mPopupPlaylist.textExit.setOnClickListener {
+            popupTextExitClick(mPopupPlaylist)
+        }
+        mPopupPlaylist.textPlayOrder.setOnClickListener { popupPlayListReOrder() }
+        mPopupPlaylist.imagePlayOrder.setOnClickListener { popupPlayListReOrder() }
+        mPopupPlaylist.recycler.adapter = mPopupPlayListAdapter
+        mPopupPlaylist.recycler.layoutManager = LinearLayoutManager(requireContext())
+        mPopupPlayListAdapter.submitList(mainViewModel.playList.value)
+        popupPlayMode(mainViewModel.playerMode.value ?: XmPlayListControl.PlayMode.PLAY_MODEL_LIST)
+        popupOrder(mainViewModel.playOrder.value ?: true)
+    }
+
+    /**
+     * 点击排序事件
+     */
+    private fun popupPlayListReOrder() {
+        mainViewModel.playListOrder()
+    }
+
+    /**
+     *
+     * popup底部text的点击事件
      * @param popupWindow PopupWindow
      */
-    private fun popupBottomTextEvent(popupWindow: PopupWindow) {
+    private fun popupTextExitClick(popupWindow: PopupWindow) {
         if (popupWindow.isShowing) {
             popupWindow.dismiss()
         }
@@ -242,10 +329,9 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
 
     /**
      * 歌曲切换事件
-     * @param lastModel PlayableModel?
      * @param curModel PlayableModel?
      */
-    private fun switchPlay(lastModel: PlayableModel?, curModel: PlayableModel?) {
+    private fun switchPlay(curModel: PlayableModel?) {
         if (curModel != null && curModel is Track) {
             binding.textPlayerTitle.text = curModel.trackTitle
             val position = mainViewModel.playList.value.let {
@@ -257,8 +343,8 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
                 }
             }
             binding.pager.currentItem = position
-            if (isVisible) {
-                mPopupPlayListAdapter.position = position
+            if (mIsInitPopup) {
+                mPopupPlayListAdapter.playPosition = position
                 mPopupPlaylist.recycler.scrollToPosition(position)
                 mPopupPlayListAdapter.notifyDataSetChanged()
             }
@@ -292,29 +378,25 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
     }
 
     /**
-     * 排序事件
-     * @param view View
+     * 播放模式事件
      */
-    private fun playSortClick(view: View) {
-//        TODO("Not yet implemented")
-        LogUtils.d(this, "playSortClick")
+    private fun playModeClick() {
+        LogUtils.d(this, "playModeClick")
         mainViewModel.playModeSwitch()
     }
 
     /**
      * 上一首事件
-     * @param view View
      */
-    private fun playPreviousClick(view: View) {
+    private fun playPreviousClick() {
         mainViewModel.playPre()
         LogUtils.d(this, "playPreviousClick")
     }
 
     /**
      * 下一首事件
-     * @param view View
      */
-    private fun playNextClick(view: View) {
+    private fun playNextClick() {
         mainViewModel.playNext()
         LogUtils.d(this, "playNextClick")
     }
@@ -336,7 +418,7 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
                         position
                     }
                 }
-                mPopupPlayListAdapter.position = position
+                mPopupPlayListAdapter.playPosition = position
                 mPopupPlaylist.recycler.scrollToPosition(position)
             }
             LogUtils.d(this, "playListClick")
@@ -345,9 +427,8 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
 
     /**
      * 播放事件
-     * @param view View
      */
-    private fun playClick(view: View) {
+    private fun playClick() {
         LogUtils.d(this, "playClick")
         if (!mainViewModel.playManager.isPlaying) {
             mainViewModel.play()
@@ -357,7 +438,7 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
     }
 
     /**
-     *
+     * 初始化判断
      * @param play Function0<Unit>
      */
     private fun initPlay(play: () -> Unit) {
@@ -367,8 +448,19 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
         }
     }
 
+    /**
+     * 返回事件
+     */
     override fun onBackPressed() {
         mPopupPlaylist.backDismiss()
         LogUtils.d(this, "onBackPressed dismiss")
+    }
+
+    /**
+     * 播放指定位置的视频
+     * @param adapterPosition Int
+     */
+    fun playToListPosition(adapterPosition: Int) {
+        mainViewModel.playManager.play(adapterPosition)
     }
 }

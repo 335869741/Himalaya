@@ -9,8 +9,6 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.ximalaya.ting.android.opensdk.model.album.Album
 import com.ximalaya.ting.android.opensdk.model.track.Track
-import java.util.*
-import kotlin.collections.ArrayList
 
 /**
  *
@@ -144,11 +142,29 @@ fun Int.timeUtil(): String {
     }
 }
 
+/**
+ * 搜索track所在的位置
+ * @receiver List<Track>
+ * @param dataId Long
+ * @return Int 未搜索到时返回 -1
+ */
 fun List<Track>.trackSearch(dataId: Long): Int {
     for ((index, item) in withIndex()) {
-        if (item.dataId == dataId){
+        if (item.dataId == dataId) {
             return index
         }
     }
     return -1
+}
+
+/**
+ * 不可变序列不能修改内容，通过返回新对象的方式修改
+ * @receiver List<T>
+ * @return ArrayList<T>
+ */
+fun <T> List<T>.onReverse(): ArrayList<T> {
+    val array = ArrayList<T>()
+    array.addAll(this)
+    array.reverse()
+    return array
 }
