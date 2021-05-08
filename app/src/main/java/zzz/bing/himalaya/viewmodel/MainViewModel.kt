@@ -16,6 +16,9 @@ import com.ximalaya.ting.android.opensdk.player.service.XmPlayListControl
 import com.ximalaya.ting.android.opensdk.player.service.XmPlayerException
 import zzz.bing.himalaya.BaseApplication
 import zzz.bing.himalaya.utils.LogUtils
+import zzz.bing.himalaya.utils.onReverse
+import zzz.bing.himalaya.utils.trackSearch
+import java.util.*
 
 class MainViewModel : ViewModel(), IXmAdsStatusListener, IXmPlayerStatusListener {
 
@@ -28,8 +31,6 @@ class MainViewModel : ViewModel(), IXmAdsStatusListener, IXmPlayerStatusListener
             XmPlayListControl.PlayMode.PLAY_MODEL_LIST to
                     XmPlayListControl.PlayMode.PLAY_MODEL_LIST_LOOP,
             XmPlayListControl.PlayMode.PLAY_MODEL_LIST_LOOP to
-                    XmPlayListControl.PlayMode.PLAY_MODEL_SINGLE,
-            XmPlayListControl.PlayMode.PLAY_MODEL_SINGLE to
                     XmPlayListControl.PlayMode.PLAY_MODEL_SINGLE_LOOP,
             XmPlayListControl.PlayMode.PLAY_MODEL_SINGLE_LOOP to
                     XmPlayListControl.PlayMode.PLAY_MODEL_RANDOM,
@@ -50,6 +51,9 @@ class MainViewModel : ViewModel(), IXmAdsStatusListener, IXmPlayerStatusListener
     }
     private val mPlayList by lazy { MutableLiveData<List<Track>>() }
 
+    //true为顺序 false为逆序
+    private val mPlayOrder by lazy { MutableLiveData<Boolean>().also { it.value = true } }
+
     val playManager: XmPlayerManager by lazy {
         XmPlayerManager.getInstance(BaseApplication.getContext()).apply {
             addAdsStatusListener(this@MainViewModel)
@@ -67,7 +71,13 @@ class MainViewModel : ViewModel(), IXmAdsStatusListener, IXmPlayerStatusListener
     val playerBuffer: LiveData<Int> by lazy { mPlayerBuffer }
     val playerNow: LiveData<Int> by lazy { mPlayerNow }
     val playerDuration: LiveData<Int> by lazy { mPlayerDuration }
+    val playOrder: LiveData<Boolean> by lazy { mPlayOrder }
 
+    var playSwitch: ((lastModel: PlayableModel?, curModel: PlayableModel?) -> Unit)? = null
+
+    /**
+     * 更改播放模式
+     */
     fun playModeSwitch() {
         val model = playMode[playManager.playMode] ?: XmPlayListControl.PlayMode.PLAY_MODEL_LIST
         mPlayerMode.postValue(model)
@@ -128,7 +138,17 @@ class MainViewModel : ViewModel(), IXmAdsStatusListener, IXmPlayerStatusListener
         }
     }
 
-    var playSwitch: ((lastModel: PlayableModel?, curModel: PlayableModel?) -> Unit)? = null
+    /**
+     * 给播放列表排序
+     */
+    fun playListOrder() {
+        mPlayOrder.value = mPlayOrder.value == null || mPlayOrder.value == false
+        val list = (mPlayList.value ?: emptyList()).onReverse()
+        val index = mPlayList.value?.trackSearch(playManager.currSound.dataId)
+        val newIndex = mPlayList.value?.let { it.size - 1 - (index ?: 0) }
+        playManager.setPlayList(list, newIndex ?: 0)
+        mPlayList.postValue(list)
+    }
 
     //==============================================================================================
     //广告相关的回调方法
@@ -164,40 +184,6 @@ class MainViewModel : ViewModel(), IXmAdsStatusListener, IXmPlayerStatusListener
 
     //==============================================================================================
     //播放器相关的回调方法
-    /**
-     *   Track{PlayableModel{dataId=411793672, kind='track',  lastPlayedMills=9519}
-     *   trackTitle='又想毁约？澳大利亚借口国安问题重新审查与中企协议 | 新闻早餐 2021.5.4 星期二',
-     *   coverUrlMiddle='https://imgopen.xmcdn.com/group18/M01/19/DE/wKgJKleDXj2QJYOuAAFbNixU8BI237.png!op_type=3&columns=180&rows=180',
-     *   duration=507, playCount=93763, favoriteCount=162, commentCount=27, downloadCount=0,
-     *   playUrl32='https://aod.cos.tx.xmcdn.com/storages/4b64-audiofreehighqps/D3/AC/CKwRIaIEZeNqAB8AgACmSQNn.mp3',
-     *   playUrl64='https://aod.cos.tx.xmcdn.com/storages/4300-audiofreehighqps/53/8B/CKwRIMAEZeNuAD4AAgCmSQRF.mp3',
-     *   playUrl24M4a='https://aod.cos.tx.xmcdn.com/storages/3d2b-audiofreehighqps/7E/2B/CKwRIRwEZeNWABf_0wCmSP9W.m4a',
-     *   playUrl64M4a='https://aod.cos.tx.xmcdn.com/storages/0f37-audiofreehighqps/70/0A/CKwRIMAEZeNYAD7A6QCmSP-2.m4a',
-     *   album=SubordinatedAlbum [albumId=4519297, albumTitle=新闻早餐（听更多新闻，上喜马拉雅APP）,
-     *   coverUrlSmall=https://imgopen.xmcdn.com/group18/M01/19/DE/wKgJKleDXj2QJYOuAAFbNixU8BI237.png!op_type=5&upload_type=album&device_type=ios&name=mobile_small&magick=png,
-     *   coverUrlMiddle=https://imgopen.xmcdn.com/group18/M01/19/DE/wKgJKleDXj2QJYOuAAFbNixU8BI237.png!op_type=5&upload_type=album&device_type=ios&name=medium&magick=png,
-     *   coverUrlLarge=https://imgopen.xmcdn.com/group18/M01/19/DE/wKgJKleDXj2QJYOuAAFbNixU8BI237.png!op_type=5&upload_type=album&device_type=ios&name=mobile_large&magick=png,
-     *   recSrc=null, recTrack=null,serializeStatus=0], createdAt=1620080400000, playSource=0, trackStatus=-1,
-     *   downloadStatus=-2, sequenceId='null', isAutoPaused=false, insertSequence=0, timeline=0, downloadCreated=0,
-     *   extra=false, startTime='null', endTime='null', scheduleId=0, programId=0, radioId=0, price=0.0, discountedPrice=0.0,
-     *   free=false, authorized=false, isPaid=false, uid=0, priceTypeId=0, blockIndex=0, blockNum=0, chargeFileSize=0,
-     *   sampleDuration=0, canDownload=false} <==> PlayableModel
-     *   || Track{PlayableModel{dataId=411531027, kind='track',  lastPlayedMills=-1}
-     *   trackTitle='日美安全对话，谈及中国高超音速武器 | 新闻早餐 2021.5.3 星期一',
-     *   coverUrlMiddle='https://imgopen.xmcdn.com/group18/M01/19/DE/wKgJKleDXj2QJYOuAAFbNixU8BI237.png!op_type=3&columns=180&rows=180',
-     *   duration=515, playCount=153539, favoriteCount=186, commentCount=39, downloadCount=0,
-     *   playUrl32='https://aod.cos.tx.xmcdn.com/storages/82ea-audiofreehighqps/12/3F/CKwRIUEEZJqGAB9-NgCl4vAC.mp3',
-     *   playUrl64='https://aod.cos.tx.xmcdn.com/storages/7dca-audiofreehighqps/42/50/CKwRIJEEZJqLAD77bwCl4vBp.mp3',
-     *   playUrl24M4a='https://aod.cos.tx.xmcdn.com/storages/ae57-audiofreehighqps/15/3B/CKwRIW4EZJp7ABhhhACl4u5k.m4a',
-     *   playUrl64M4a='https://aod.cos.tx.xmcdn.com/storages/634a-audiofreehighqps/45/23/CKwRIDoEZJp_AD_AbgCl4u8u.m4a',
-     *   album=SubordinatedAlbum [albumId=4519297, albumTitle=新闻早餐（听更多新闻，上喜马拉雅APP）,
-     *   coverUrlSmall=https://imgopen.xmcdn.com/group18/M01/19/DE/wKgJKleDXj2QJYOuAAFbNixU8BI237.png!op_type=5&upload_type=album&device_type=ios&name=mobile_small&magick=png,
-     *   coverUrlMiddle=https://imgopen.xmcdn.com/group18/M01/19/DE/wKgJKleDXj2QJYOuAAFbNixU8BI237.png!op_type=5&upload_type=album&device_type=ios&name=medium&magick=png,
-     *   coverUrlLarge=https://imgopen.xmcdn.com/group18/M01/19/DE/wKgJKleDXj2QJYOuAAFbNixU8BI237.png!op_type=5&upload_type=album&device_type=ios&name=mobile_large&magick=png,
-     *   recSrc=null, recTrack=null,serializeStatus=0], createdAt=1619994000000, playSource=0, trackStatus=-1, downloadStatus=-2, sequenceId='null', isAutoPaused=false,
-     *   insertSequence=0, timeline=0, downloadCreated=0, extra=false, startTime='null', endTime='null', scheduleId=0, programId=0, radioId=0, price=0.0, discountedPrice=0.0,
-     *   free=false, authorized=false, isPaid=false, uid=0, priceTypeId=0, blockIndex=0, blockNum=0, chargeFileSize=0, sampleDuration=0, canDownload=false} <==> PlayableModel
-     */
     override fun onPlayStart() {
         LogUtils.d(this, "播放器 == onPlayStart")
         mPlayerState.postValue(PlayerState.Playing)

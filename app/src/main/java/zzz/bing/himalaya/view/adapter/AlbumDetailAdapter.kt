@@ -3,8 +3,6 @@ package zzz.bing.himalaya.view.adapter
 import android.icu.text.SimpleDateFormat
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -13,7 +11,6 @@ import com.ximalaya.ting.android.opensdk.model.track.Track
 import zzz.bing.himalaya.R
 import zzz.bing.himalaya.databinding.ItemAlbumDetailBinding
 import zzz.bing.himalaya.utils.timeUtil
-import zzz.bing.himalaya.view.MainActivity
 import zzz.bing.himalaya.view.fragment.AlbumDetailFragment
 import java.util.*
 
@@ -36,7 +33,7 @@ class AlbumDetailAdapter(private val albumDetailFragment: AlbumDetailFragment) :
         detailViewHolder.itemView.setOnClickListener { //itemView ->
             albumDetailFragment.findNavController().also { navController ->
                 val main = albumDetailFragment.main
-                main.putPlayList(currentList,detailViewHolder.adapterPosition)
+                main.putPlayList(currentList, detailViewHolder.adapterPosition)
                 navController.navigate(R.id.action_detailFragment_to_playerFragment)
             }
         }
@@ -51,7 +48,7 @@ class AlbumDetailAdapter(private val albumDetailFragment: AlbumDetailFragment) :
         binding.textItemTime.text = item.duration.timeUtil()
         binding.textItemDate.text =
             SimpleDateFormat("yyyy-MM-dd", Locale.CHINA).format(item.createdAt)
-        binding.textCount.text = position.toString()
+        binding.textCount.text = "${position + 1}"
     }
 
     inner class DetailViewHolder(val binding: ItemAlbumDetailBinding) :
