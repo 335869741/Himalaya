@@ -10,15 +10,20 @@ import com.ximalaya.ting.android.opensdk.model.track.Track
 import com.ximalaya.ting.android.opensdk.model.track.TrackList
 import zzz.bing.himalaya.repository.PlayerManager
 import zzz.bing.himalaya.utils.LogUtils
+import zzz.bing.himalaya.utils.onReverse
+import zzz.bing.himalaya.utils.trackSearch
 import zzz.bing.himalaya.views.UILoader
 
 class AlbumDetailViewModel : ViewModel() {
 
-    private val playerManager by lazy { PlayerManager.instance }
+    private val playerManager get() = PlayerManager.instance
     private val mTrackLiveData by lazy { MutableLiveData<List<Track>>() }
     val netState by lazy { MutableLiveData<UILoader.UIStatus>() }
 
     val trackLiveData: LiveData<List<Track>> by lazy { mTrackLiveData }
+    val isPlaying get() = playerManager.playManager.isPlaying
+    val playerState get() = playerManager.playerState
+    val voice get() = playerManager.playManager.currSound
 
     fun getTracksOrNull(id: Long) {
         netState.postValue(UILoader.UIStatus.LOADING)
@@ -46,7 +51,43 @@ class AlbumDetailViewModel : ViewModel() {
             })
     }
 
+    /**
+     *
+     * @param list List<Track>
+     * @param position Int
+     */
     fun putPlayList(list: List<Track>, position: Int) {
-        playerManager.putPlayList(list, position)
+        val tracks = playerManager.playList.value ?: emptyList()
+        if (tracks.isEmpty()) {
+            playerManager.putPlayList(list, position)
+        } else {
+            val playList = if (list.first() == tracks.last()) list.onReverse() else list
+            playerManager.putPlayList(playList, position)
+        }
     }
+
+    /**
+     *
+     */
+    fun onPlayForPlayList() {
+        trackLiveData.value?.apply {
+            val tracks = playerManager.playList.value ?: emptyList()
+            if (tracks.isEmpty()) {
+                putPlayList(this, 0)
+            } else {
+                if (this.first() != tracks.first() || this.first() != tracks.last()) {
+                    putPlayList(this, 0)
+                } else {
+                    if (this.size > tracks.size) {
+                        val playList = if (this.first() == tracks.last()) this.onReverse() else this
+                        val index = tracks.trackSearch(playerManager.playManager.currSound.dataId)
+                        putPlayList(playList, index)
+                    }
+                }
+            }
+        }
+    }
+
+    fun stop() = playerManager.stop()
+    fun play() = playerManager.play()
 }

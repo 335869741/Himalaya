@@ -17,6 +17,7 @@ import zzz.bing.himalaya.BaseApplication
 import zzz.bing.himalaya.utils.LogUtils
 import zzz.bing.himalaya.utils.onReverse
 import zzz.bing.himalaya.utils.trackSearch
+import java.util.*
 
 class PlayerManager private constructor() : IXmAdsStatusListener, IXmPlayerStatusListener {
 
@@ -92,18 +93,6 @@ class PlayerManager private constructor() : IXmAdsStatusListener, IXmPlayerStatu
      * @param position Int 歌曲在歌单的位置
      */
     fun putPlayList(list: List<Track>, position: Int) {
-        mPlayList.value?.also { tracks ->
-            if (tracks.first() == list.first() && tracks.size >= list.size) {
-                playManager.setPlayList(tracks, position)
-                LogUtils.d(this, "putPlayList also")
-                return
-            } else if (tracks.last() == list.first() && tracks.size >= list.size) {
-                val index = tracks.size - 1 - position
-                playManager.setPlayList(tracks, index)
-                LogUtils.d(this, "putPlayList also")
-                return
-            }
-        }
         LogUtils.d(this, "putPlayList post set")
         mPlayList.postValue(list)
         playManager.setPlayList(list, position)

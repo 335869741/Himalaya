@@ -17,6 +17,7 @@ import com.ximalaya.ting.android.opensdk.model.track.Track
 import zzz.bing.himalaya.BaseFragment
 import zzz.bing.himalaya.R
 import zzz.bing.himalaya.databinding.FragmentAlbumDetailBinding
+import zzz.bing.himalaya.repository.PlayerManager
 import zzz.bing.himalaya.utils.*
 import zzz.bing.himalaya.view.MainActivity
 import zzz.bing.himalaya.view.adapter.AlbumDetailAdapter
@@ -36,6 +37,8 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
 
     //是否展开
     private var isExpanded = true
+    private var mPassPlay = false
+    private var mIsInit = true
 
     private lateinit var mAlbumDetailAdapter: AlbumDetailAdapter
     private lateinit var mRecycler: MyRecycler
@@ -44,8 +47,6 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // These are the shared element transitions.
         sharedElementEnterTransition = createSharedElementTransition(LARGE_EXPAND_DURATION)
         sharedElementReturnTransition = createSharedElementTransition(LARGE_COLLAPSE_DURATION)
     }
@@ -73,7 +74,6 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
                 val glide = Glide.with(this).load(url).dontTransform()
                     .doOnEnd(::startPostponedEnterTransition)
                 glide.into(binding.imageAlbumIcon)
-//                glide.fallbackDrawable
                 glide.into(binding.imageBackground)
             }
         }
@@ -92,8 +92,8 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
                     isExpanded = false
                 }
             })
-        binding.textOnPlay.setOnClickListener { view ->
-            onPlayClick(view)
+        binding.textOnPlay.setOnClickListener {
+            onPlayClick()
         }
         binding.textOnSelect.setOnClickListener { view ->
             onSelectListClick(view)
@@ -121,16 +121,79 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
 
     /**
      * 播放事件
-     * @param view View
      */
-    private fun onPlayClick(view: View) {
-        putPlayList(mAlbumDetailAdapter.currentList, 0)
+    private fun onPlayClick() {
+        if (viewModel.isPlaying) {
+            viewModel.stop()
+        } else {
+            passPlay()
+            putPlayList()
+            viewModel.play()
+        }
     }
 
     override fun initObserver() {
         viewModel.trackLiveData.observe(this) { tracks ->
             if (!tracks.isNullOrEmpty()) {
                 setTrackS(tracks)
+            }
+        }
+        viewModel.playerState.observe(viewLifecycleOwner) { playerState ->
+            playerState?.also {
+                playerStateChange(it)
+            }
+        }
+    }
+
+    private fun playerStateChange(playerState: PlayerManager.PlayerState) {
+        when (playerState) {
+            PlayerManager.PlayerState.Playing -> {
+                val playIcon =
+                    ContextCompat.getDrawable(requireContext(), R.drawable.selector_pause_black)
+                binding.textOnPlay.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                    playIcon,
+                    null,
+                    null,
+                    null
+                )
+                binding.textOnPlay.text = (viewModel.voice as Track).trackTitle
+            }
+            PlayerManager.PlayerState.Stopped -> {
+                val playIcon =
+                    ContextCompat.getDrawable(requireContext(), R.drawable.selector_play_black)
+                binding.textOnPlay.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                    playIcon,
+                    null,
+                    null,
+                    null
+                )
+                binding.textOnPlay.text = "继续播放"
+                viewModel.trackLiveData.value.also { tracks ->
+                    if (!tracks.isNullOrEmpty()) {
+                        if (tracks.trackSearch(viewModel.voice.dataId) == -1) {
+                            binding.textOnPlay.text = "播放全部"
+                        }
+                    }
+                }
+            }
+            PlayerManager.PlayerState.Usable -> {
+                if (mPassPlay) {
+                    viewModel.play()
+                    mPassPlay = false
+                    LogUtils.d(this, "Usable mPassPlay == $mPassPlay")
+                }
+                LogUtils.d(this, "Usable mPassPlay == $mPassPlay")
+            }
+            else -> {
+                val playIcon =
+                    ContextCompat.getDrawable(requireContext(), R.drawable.selector_play_black)
+                binding.textOnPlay.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                    playIcon,
+                    null,
+                    null,
+                    null
+                )
+                binding.textOnPlay.text = "播放全部"
             }
         }
     }
@@ -194,8 +257,33 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
         }
     }
 
+    /**
+     * 提交播放列表同时设定位置
+     * @param list List<Track>
+     * @param position Int
+     */
     fun putPlayList(list: List<Track>, position: Int) {
         viewModel.putPlayList(list, position)
+    }
+
+    /**
+     * 提交播放列表
+     * 已有播放位置时不改变
+     * 没有时设为0
+     */
+    private fun putPlayList() {
+        viewModel.onPlayForPlayList()
+    }
+
+    /**
+     * 初始化判断
+     * @param play Function0<Unit>
+     */
+    private fun passPlay() {
+        if (mIsInit) {
+            mIsInit = false
+            mPassPlay = true
+        }
     }
 
     inner class MyRecycler : UILoader(requireContext()) {

@@ -10,15 +10,15 @@ class PlayerViewModel : ViewModel() {
     /**
      *
      */
-    private val playerManager by lazy { PlayerManager.instance }
+    private val playerManager get() = PlayerManager.instance
 
-    val playerDuration by lazy { playerManager.playerDuration }
-    val playOrder by lazy { playerManager.playOrder }
-    val playerMode by lazy { playerManager.playerMode }
-    val playerNow by lazy { playerManager.playerNow }
-    val playerBuffer by lazy { playerManager.playerBuffer }
-    val playerState by lazy { playerManager.playerState }
-    val playList by lazy { playerManager.playList }
+    val playerDuration get() = playerManager.playerDuration
+    val playOrder get() = playerManager.playOrder
+    val playerMode get() = playerManager.playerMode
+    val playerNow get() = playerManager.playerNow
+    val playerBuffer get() = playerManager.playerBuffer
+    val playerState get() = playerManager.playerState
+    val playList get() = playerManager.playList
 
 
     /**

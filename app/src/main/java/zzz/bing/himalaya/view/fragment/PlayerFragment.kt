@@ -96,8 +96,9 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
             val position = list.trackSearch(viewModel.nowVoice().dataId)
             mPopupPlayListAdapter.playPosition = position
             if (mPopupPlaylist.isShowing) {
-//                mPopupPlayListAdapter.notifyDataSetChanged()
-                mPopupPlaylist.recycler.scrollToPosition(position)
+                mPopupPlaylist.recycler.post {
+                    mPopupPlaylist.recycler.scrollToPosition(position)
+                }
             }
             LogUtils.d(this, "position ==> $position")
         }

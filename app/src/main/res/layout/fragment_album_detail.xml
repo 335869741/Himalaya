@@ -102,10 +102,11 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="30dp"
                     android:layout_weight="5"
+                    android:clickable="true"
                     android:drawablePadding="10dp"
                     android:gravity="center_vertical"
                     android:text="@string/textOnPlay"
-                    app:drawableStartCompat="@mipmap/play_icon" />
+                    app:drawableStartCompat="@mipmap/play_black" />
 
                 <TextView
                     android:id="@+id/textOnSelect"
@@ -114,6 +115,7 @@
                     android:layout_marginStart="10dp"
                     android:layout_marginEnd="30dp"
                     android:layout_weight="1"
+                    android:clickable="true"
                     android:gravity="center_vertical"
                     android:text="@string/textOnSelect"
                     app:drawableEndCompat="@mipmap/arrow_icon" />
