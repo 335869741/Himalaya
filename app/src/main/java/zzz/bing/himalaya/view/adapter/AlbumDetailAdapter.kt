@@ -32,8 +32,8 @@ class AlbumDetailAdapter(private val albumDetailFragment: AlbumDetailFragment) :
         val detailViewHolder = DetailViewHolder(binding)
         detailViewHolder.itemView.setOnClickListener { //itemView ->
             albumDetailFragment.findNavController().also { navController ->
-                val main = albumDetailFragment.main
-                main.putPlayList(currentList, detailViewHolder.adapterPosition)
+                albumDetailFragment.putPlayList(currentList, detailViewHolder.adapterPosition)
+                //main.putPlayList(currentList, detailViewHolder.adapterPosition)
                 navController.navigate(R.id.action_detailFragment_to_playerFragment)
             }
         }

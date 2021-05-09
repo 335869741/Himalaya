@@ -17,9 +17,9 @@ import com.ximalaya.ting.android.opensdk.model.track.Track
 import zzz.bing.himalaya.BaseFragment
 import zzz.bing.himalaya.R
 import zzz.bing.himalaya.databinding.FragmentAlbumDetailBinding
+import zzz.bing.himalaya.utils.*
 import zzz.bing.himalaya.view.MainActivity
 import zzz.bing.himalaya.view.adapter.AlbumDetailAdapter
-import zzz.bing.himalaya.utils.*
 import zzz.bing.himalaya.viewmodel.AlbumDetailViewModel
 import zzz.bing.himalaya.views.UILoader
 import java.util.concurrent.TimeUnit
@@ -38,11 +38,9 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
     private var isExpanded = true
 
     private lateinit var mAlbumDetailAdapter: AlbumDetailAdapter
-    private lateinit var mRecycler : MyRecycler
+    private lateinit var mRecycler: MyRecycler
 
     private val mItemId: Long by lazy { arguments?.getLong(ACTION_ITEM_ID)!! }
-
-    val main by lazy { (requireActivity() as MainActivity).viewModel }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -110,7 +108,7 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
      * @param view View
      */
     private fun onSubscribeClick(view: View) {
-        LogUtils.d(this,"onSubscribeClick")
+        LogUtils.d(this, "onSubscribeClick")
     }
 
     /**
@@ -118,7 +116,7 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
      * @param view View
      */
     private fun onSelectListClick(view: View) {
-        LogUtils.d(this,"onSelectListClick")
+        LogUtils.d(this, "onSelectListClick")
     }
 
     /**
@@ -126,12 +124,12 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
      * @param view View
      */
     private fun onPlayClick(view: View) {
-        LogUtils.d(this,"onPlayClick")
+        putPlayList(mAlbumDetailAdapter.currentList, 0)
     }
 
     override fun initObserver() {
-        viewModel.trackLiveData.observe(this){ tracks ->
-            if (!tracks.isNullOrEmpty()){
+        viewModel.trackLiveData.observe(this) { tracks ->
+            if (!tracks.isNullOrEmpty()) {
                 setTrackS(tracks)
             }
         }
@@ -160,6 +158,7 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
         super.onResume()
         setBarColor()
     }
+
     /**
      * 设置状态栏透明和恢复状态栏
      */
@@ -195,7 +194,11 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
         }
     }
 
-    inner class MyRecycler : UILoader(requireContext()){
+    fun putPlayList(list: List<Track>, position: Int) {
+        viewModel.putPlayList(list, position)
+    }
+
+    inner class MyRecycler : UILoader(requireContext()) {
         override fun getSuccessView() = RecyclerView(requireContext())
 
         override fun getUIStatusLiveData() = viewModel.netState

@@ -8,15 +8,17 @@ import com.ximalaya.ting.android.opensdk.datatrasfer.CommonRequest
 import com.ximalaya.ting.android.opensdk.datatrasfer.IDataCallBack
 import com.ximalaya.ting.android.opensdk.model.track.Track
 import com.ximalaya.ting.android.opensdk.model.track.TrackList
+import zzz.bing.himalaya.repository.PlayerManager
 import zzz.bing.himalaya.utils.LogUtils
 import zzz.bing.himalaya.views.UILoader
 
 class AlbumDetailViewModel : ViewModel() {
 
+    private val playerManager by lazy { PlayerManager.instance }
     private val mTrackLiveData by lazy { MutableLiveData<List<Track>>() }
     val netState by lazy { MutableLiveData<UILoader.UIStatus>() }
 
-    val trackLiveData : LiveData<List<Track>> by lazy { mTrackLiveData }
+    val trackLiveData: LiveData<List<Track>> by lazy { mTrackLiveData }
 
     fun getTracksOrNull(id: Long) {
         netState.postValue(UILoader.UIStatus.LOADING)
@@ -42,5 +44,9 @@ class AlbumDetailViewModel : ViewModel() {
                     netState.postValue(UILoader.UIStatus.NETWORK_ERROR)
                 }
             })
+    }
+
+    fun putPlayList(list: List<Track>, position: Int) {
+        playerManager.putPlayList(list, position)
     }
 }
