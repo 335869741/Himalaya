@@ -20,7 +20,6 @@ class PlayListPopup(height: Int, view: View) :
             .inflate(R.layout.popup_play_list, null),
         ViewGroup.LayoutParams.MATCH_PARENT,
         height
-//        ViewGroup.LayoutParams.WRAP_CONTENT
     ) {
 
     init {
@@ -37,12 +36,12 @@ class PlayListPopup(height: Int, view: View) :
         ObjectAnimator.ofFloat(view, "alpha", 1f).also { it.duration = delay }
     }
 
-    val recycler by lazy { contentView.findViewById<RecyclerView>(R.id.recycler) }
-    val textExit by lazy { contentView.findViewById<TextView>(R.id.textBottom) }
-    val textPlayMode by lazy { contentView.findViewById<TextView>(R.id.textPlayMode) }
-    val textPlayOrder by lazy { contentView.findViewById<TextView>(R.id.textPlayOrder) }
-    val imagePlayMode by lazy { contentView.findViewById<ImageView>(R.id.imagePlayMode) }
-    val imagePlayOrder by lazy { contentView.findViewById<ImageView>(R.id.imagePlayOrder) }
+    val recycler: RecyclerView by lazy { contentView.findViewById(R.id.recycler) }
+    val textExit: TextView by lazy { contentView.findViewById(R.id.textBottom) }
+    val textPlayMode: TextView by lazy { contentView.findViewById(R.id.textPlayMode) }
+    val textPlayOrder: TextView by lazy { contentView.findViewById(R.id.textPlayOrder) }
+    val imagePlayMode: ImageView by lazy { contentView.findViewById(R.id.imagePlayMode) }
+    val imagePlayOrder: ImageView by lazy { contentView.findViewById(R.id.imagePlayOrder) }
 
     override fun showAtLocation(parent: View?, gravity: Int, x: Int, y: Int) {
         super.showAtLocation(parent, gravity, x, y)
@@ -69,7 +68,10 @@ class PlayListPopup(height: Int, view: View) :
         }
     }
 
-    fun backDismiss(){
+    /**
+     * 直接关闭，不播放动画
+     */
+    fun immediateDismiss() {
         super.dismiss()
     }
 }

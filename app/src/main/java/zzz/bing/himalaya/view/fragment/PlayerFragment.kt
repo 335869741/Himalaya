@@ -15,13 +15,13 @@ import com.ximalaya.ting.android.opensdk.player.service.XmPlayListControl
 import zzz.bing.himalaya.BaseFragment
 import zzz.bing.himalaya.R
 import zzz.bing.himalaya.databinding.FragmentPlayerBinding
+import zzz.bing.himalaya.repository.PlayerManager
 import zzz.bing.himalaya.utils.LogUtils
 import zzz.bing.himalaya.utils.putAll
 import zzz.bing.himalaya.utils.timeUtil
 import zzz.bing.himalaya.utils.trackSearch
 import zzz.bing.himalaya.view.adapter.PlayerCoverAdapter
 import zzz.bing.himalaya.view.adapter.PopupPlayListAdapter
-import zzz.bing.himalaya.viewmodel.MainViewModel
 import zzz.bing.himalaya.viewmodel.PlayerViewModel
 import zzz.bing.himalaya.views.PlayListPopup
 
@@ -53,34 +53,34 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
     }
 
     override fun initObserver() {
-        mainViewModel.playList.observe(viewLifecycleOwner) { trackList ->
+        viewModel.playList.observe(viewLifecycleOwner) { trackList ->
             playListChange(trackList ?: emptyList())
         }
-        mainViewModel.playerState.observe(viewLifecycleOwner) { playerState ->
-            if (playerState != null) {
-                playerStateChange(playerState)
+        viewModel.playerState.observe(viewLifecycleOwner) { playerState ->
+            playerState?.also {
+                playerStateChange(it)
             }
         }
-        mainViewModel.playerBuffer.observe(viewLifecycleOwner) {
+        viewModel.playerBuffer.observe(viewLifecycleOwner) {
             val buffer = if (it == null || it < 0) 0 else if (it > 100) 100 else it
             seekBarBuffer(buffer)
         }
-        mainViewModel.playerNow.observe(viewLifecycleOwner) {
-            val buffer = if (it == null || it < 0) 0 else it
+        viewModel.playerNow.observe(viewLifecycleOwner) {
+            val buffer = it ?: 0
             seekBarProgress(buffer)
         }
-        mainViewModel.playerDuration.observe(viewLifecycleOwner) {
-            val duration = if (it == null || it < 0) 0 else it
+        viewModel.playerDuration.observe(viewLifecycleOwner) {
+            val duration = it ?: 0
             timeDuration(duration)
         }
-        mainViewModel.playerMode.observe(viewLifecycleOwner) {
+        viewModel.playerMode.observe(viewLifecycleOwner) {
             it?.also { playMode ->
                 playModeChange(playMode)
             }
         }
-        mainViewModel.playOrder.observe(viewLifecycleOwner) {
+        viewModel.playOrder.observe(viewLifecycleOwner) {
             if (mIsInitPopup) {
-                popupOrder(it ?: true)
+                popupOrder(it)
             }
         }
     }
@@ -93,11 +93,12 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
         mPlayerCoverAdapter.playList.putAll(list)
         if (mIsInitPopup) {
             mPopupPlayListAdapter.submitList(list)
-            val position = list.trackSearch(mainViewModel.playManager.currSound.dataId)
+            val position = list.trackSearch(viewModel.nowVoice().dataId)
             mPopupPlayListAdapter.playPosition = position
             if (mPopupPlaylist.isShowing) {
-                mPopupPlayListAdapter.notifyDataSetChanged()
-                mPopupPlaylist.recycler.scrollToPosition(position)
+                mPopupPlaylist.recycler.post {
+                    mPopupPlaylist.recycler.scrollToPosition(position)
+                }
             }
             LogUtils.d(this, "position ==> $position")
         }
@@ -109,7 +110,7 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
      */
     private fun popupOrder(order: Boolean) {
         //true为顺序 false为逆序
-        if (order) {
+        if (!order) {
             mPopupPlaylist.imagePlayOrder.setImageDrawable(
                 getDrawable(R.drawable.selector_player_sort_descending)
             )
@@ -155,7 +156,7 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
             when (playMode) {
                 XmPlayListControl.PlayMode.PLAY_MODEL_LIST -> {
                     mPopupPlaylist.imagePlayMode.setImageDrawable(getDrawable(R.drawable.selector_player_sort_descending))
-                    mPopupPlaylist.textPlayMode.text = "顺序播放"
+                    mPopupPlaylist.textPlayMode.text = "列表播放"
                 }
                 XmPlayListControl.PlayMode.PLAY_MODEL_LIST_LOOP -> {
                     mPopupPlaylist.imagePlayMode.setImageDrawable(getDrawable(R.drawable.selector_play_mode_loop))
@@ -218,20 +219,20 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
      * 播放状态改变
      * @param playerState PlayerState
      */
-    private fun playerStateChange(playerState: MainViewModel.PlayerState) {
+    private fun playerStateChange(playerState: PlayerManager.PlayerState) {
         when (playerState) {
-            MainViewModel.PlayerState.Playing -> {
+            PlayerManager.PlayerState.Playing -> {
                 binding.imagePlay.setImageDrawable(
                     ContextCompat.getDrawable(requireContext(), R.drawable.selector_player_stop)
                 )
             }
-            MainViewModel.PlayerState.Stopped -> {
+            PlayerManager.PlayerState.Stopped -> {
                 binding.imagePlay.setImageDrawable(
                     ContextCompat.getDrawable(requireContext(), R.drawable.selector_player_start)
                 )
             }
-            MainViewModel.PlayerState.Usable -> {
-                initPlay { mainViewModel.play() }
+            PlayerManager.PlayerState.Usable -> {
+                initPlay { viewModel.play() }
             }
             else -> {
                 binding.imagePlay.setImageDrawable(
@@ -275,7 +276,7 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
                 LogUtils.d(this@PlayerFragment, "onStopTrackingTouch")
             }
         })
-        mainViewModel.playSwitch = { _, curModel ->
+        viewModel.playSwitch { _, curModel ->
             switchPlay(curModel)
         }
         binding.root.viewTreeObserver.addOnGlobalLayoutListener(object :
@@ -304,16 +305,16 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
         mPopupPlaylist.imagePlayOrder.setOnClickListener { popupPlayListReOrder() }
         mPopupPlaylist.recycler.adapter = mPopupPlayListAdapter
         mPopupPlaylist.recycler.layoutManager = LinearLayoutManager(requireContext())
-        mPopupPlayListAdapter.submitList(mainViewModel.playList.value)
-        popupPlayMode(mainViewModel.playerMode.value ?: XmPlayListControl.PlayMode.PLAY_MODEL_LIST)
-        popupOrder(mainViewModel.playOrder.value ?: true)
+        mPopupPlayListAdapter.submitList(viewModel.playList.value)
+        popupPlayMode(viewModel.playerMode.value ?: XmPlayListControl.PlayMode.PLAY_MODEL_LIST)
+        popupOrder(viewModel.playOrder.value ?: true)
     }
 
     /**
      * 点击排序事件
      */
     private fun popupPlayListReOrder() {
-        mainViewModel.playListOrder()
+        viewModel.playListOrder()
     }
 
     /**
@@ -334,7 +335,7 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
     private fun switchPlay(curModel: PlayableModel?) {
         if (curModel != null && curModel is Track) {
             binding.textPlayerTitle.text = curModel.trackTitle
-            val position = mainViewModel.playList.value.let {
+            val position = viewModel.playList.value.let {
                 val index = it?.trackSearch(curModel.dataId)
                 if (index != null && index != -1) {
                     index
@@ -357,13 +358,13 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
      * @param progress Int
      */
     private fun onSeekBarChanged(progress: Int) {
-        mainViewModel.playManager.seekTo(progress)
+        viewModel.seekTo(progress)//playManager.seekTo(progress)
         // TODO: 2021/5/4 无效
         LogUtils.d(this, "onSeekBarChanged progress ==> $progress | position ==> position")
     }
 
     override fun initData() {
-        mainViewModel.playManager.currSound.also { track ->
+        viewModel.nowVoice().also { track ->
             if (track is Track) {
                 binding.seekBarTime.max = track.duration
                 LogUtils.d(this, "duration ==> ${track.duration}")
@@ -373,7 +374,7 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
         binding.seekBarTime.progress = 0
         binding.textAfterTime.text =
             requireContext().getString(R.string.minutesTime, "00", "00")
-        binding.textTotalTime.text = mainViewModel.playManager.duration.timeUtil()
+        binding.textTotalTime.text = viewModel.duration().timeUtil()
         mInit = false
     }
 
@@ -382,14 +383,14 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
      */
     private fun playModeClick() {
         LogUtils.d(this, "playModeClick")
-        mainViewModel.playModeSwitch()
+        viewModel.playModeSwitch()
     }
 
     /**
      * 上一首事件
      */
     private fun playPreviousClick() {
-        mainViewModel.playPre()
+        viewModel.playPre()
         LogUtils.d(this, "playPreviousClick")
     }
 
@@ -397,7 +398,7 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
      * 下一首事件
      */
     private fun playNextClick() {
-        mainViewModel.playNext()
+        viewModel.playNext()
         LogUtils.d(this, "playNextClick")
     }
 
@@ -408,10 +409,10 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
     private fun playListClick(view: View) {
         if (!mPopupPlaylist.isShowing) {
             mPopupPlaylist.showAtLocation(view, Gravity.BOTTOM, 0, 0)
-            if (mainViewModel.playManager.currSound is Track) {
-                val position = mainViewModel.playList.let { liveData ->
-                    val position =
-                        liveData.value?.trackSearch(mainViewModel.playManager.currSound.dataId)
+            val voice = viewModel.nowVoice()
+            if (voice is Track) {
+                val position = viewModel.playList.let { liveData ->
+                    val position = liveData.value?.trackSearch(voice.dataId)
                     if (position == null || position == -1) {
                         0
                     } else {
@@ -430,10 +431,10 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
      */
     private fun playClick() {
         LogUtils.d(this, "playClick")
-        if (!mainViewModel.playManager.isPlaying) {
-            mainViewModel.play()
+        if (!viewModel.isPlaying()) {
+            viewModel.play()
         } else {
-            mainViewModel.stop()
+            viewModel.stop()
         }
     }
 
@@ -448,12 +449,9 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
         }
     }
 
-    /**
-     * 返回事件
-     */
-    override fun onBackPressed() {
-        mPopupPlaylist.backDismiss()
-        LogUtils.d(this, "onBackPressed dismiss")
+    override fun onStop() {
+        super.onStop()
+        mPopupPlaylist.immediateDismiss()
     }
 
     /**
@@ -461,6 +459,6 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
      * @param adapterPosition Int
      */
     fun playToListPosition(adapterPosition: Int) {
-        mainViewModel.playManager.play(adapterPosition)
+        viewModel.play(adapterPosition)
     }
 }
