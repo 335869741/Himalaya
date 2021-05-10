@@ -303,6 +303,11 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
         }
         mPopupPlaylist.textPlayOrder.setOnClickListener { popupPlayListReOrder() }
         mPopupPlaylist.imagePlayOrder.setOnClickListener { popupPlayListReOrder() }
+        mPopupPlaylist.recycler.itemAnimator?.apply {
+            changeDuration = 0
+            moveDuration = 0
+            removeDuration = 0
+        }
         mPopupPlaylist.recycler.adapter = mPopupPlayListAdapter
         mPopupPlaylist.recycler.layoutManager = LinearLayoutManager(requireContext())
         mPopupPlayListAdapter.submitList(viewModel.playList.value)

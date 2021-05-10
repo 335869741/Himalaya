@@ -2,6 +2,7 @@ package zzz.bing.himalaya.view.fragment
 
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.lifecycle.ViewModelProvider
@@ -13,6 +14,10 @@ import androidx.transition.ChangeTransform
 import androidx.transition.Transition
 import com.bumptech.glide.Glide
 import com.google.android.material.appbar.AppBarLayout
+import com.scwang.smart.refresh.footer.ClassicsFooter
+import com.scwang.smart.refresh.layout.SmartRefreshLayout
+import com.scwang.smart.refresh.layout.api.RefreshLayout
+import com.scwang.smart.refresh.layout.constant.RefreshState
 import com.ximalaya.ting.android.opensdk.model.track.Track
 import zzz.bing.himalaya.BaseFragment
 import zzz.bing.himalaya.R
@@ -58,7 +63,7 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
     override fun initView() {
         mRecycler = MyRecycler()
         binding.frame.addView(mRecycler)
-        val recycler = mRecycler.success as RecyclerView
+        val recycler = mRecycler.recycler
         recycler.layoutManager = LinearLayoutManager(requireContext())
         mAlbumDetailAdapter = AlbumDetailAdapter(this)
         recycler.adapter = mAlbumDetailAdapter
@@ -77,7 +82,7 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
                 glide.into(binding.imageBackground)
             }
         }
-        viewModel.getTracksOrNull(mItemId)
+        viewModel.getTracks(mItemId)
     }
 
     override fun initListener() {
@@ -145,6 +150,10 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
         }
     }
 
+    /**
+     *
+     * @param playerState PlayerState
+     */
     private fun playerStateChange(playerState: PlayerManager.PlayerState) {
         when (playerState) {
             PlayerManager.PlayerState.Playing -> {
@@ -276,8 +285,7 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
     }
 
     /**
-     * 初始化判断
-     * @param play Function0<Unit>
+     * 初始化
      */
     private fun passPlay() {
         if (mIsInit) {
@@ -286,8 +294,62 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
         }
     }
 
+    /**
+     *
+     */
+    private fun loadMoreListener() {
+        viewModel.getTracks(mItemId)
+    }
+
     inner class MyRecycler : UILoader(requireContext()) {
-        override fun getSuccessView() = RecyclerView(requireContext())
+        lateinit var recycler: RecyclerView
+
+        private val isLoadMore get() = (success as RefreshLayout).state == RefreshState.Loading
+
+        override fun getSuccessView() = SmartRefreshLayout(context).apply {
+            recycler = RecyclerView(context).apply {
+                overScrollMode = View.OVER_SCROLL_NEVER
+                layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                )
+                itemAnimator?.apply {
+                    changeDuration = 0
+                    moveDuration = 0
+                    removeDuration = 0
+                }
+            }
+            setRefreshFooter(ClassicsFooter(context))
+            setRefreshContent(recycler)
+            setOnLoadMoreListener {
+                this@AlbumDetailFragment.loadMoreListener()
+            }
+            setHeaderHeight(0f)
+        }
+
+        /**
+         *  加载完成
+         * @param uiStatus UIStatus
+         */
+        override fun uiStatusChange(uiStatus: UIStatus) {
+            if (isLoadMore && uiStatus == UIStatus.SUCCESS) {
+                (success as RefreshLayout).finishLoadMore()
+            }
+        }
+
+        /**
+         * 加载失败，没有更多数据
+         */
+        override fun loadMoreEmpty() {
+            (success as RefreshLayout).finishLoadMoreWithNoMoreData()
+        }
+
+        /**
+         * 加载失败，网络错误
+         */
+        override fun loadMoreError() {
+            (success as RefreshLayout).finishLoadMore(false)
+        }
 
         override fun getUIStatusLiveData() = viewModel.netState
 

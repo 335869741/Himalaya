@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.ximalaya.ting.android.opensdk.constants.DTransferConstants
 import com.ximalaya.ting.android.opensdk.datatrasfer.CommonRequest
 import com.ximalaya.ting.android.opensdk.datatrasfer.IDataCallBack
+import com.ximalaya.ting.android.opensdk.model.PlayableModel
 import com.ximalaya.ting.android.opensdk.model.track.Track
 import com.ximalaya.ting.android.opensdk.model.track.TrackList
 import zzz.bing.himalaya.repository.PlayerManager
@@ -16,31 +17,48 @@ import zzz.bing.himalaya.views.UILoader
 
 class AlbumDetailViewModel : ViewModel() {
 
+    private var mPage = 1
+    private var mSearchId = 0L
+
     private val playerManager get() = PlayerManager.instance
     private val mTrackLiveData by lazy { MutableLiveData<List<Track>>() }
-    val netState by lazy { MutableLiveData<UILoader.UIStatus>() }
 
+    val netState by lazy { MutableLiveData<UILoader.UIStatus>() }
     val trackLiveData: LiveData<List<Track>> by lazy { mTrackLiveData }
+
     val isPlaying get() = playerManager.playManager.isPlaying
     val playerState get() = playerManager.playerState
-    val voice get() = playerManager.playManager.currSound
+    val voice: PlayableModel get() = playerManager.playManager.currSound
 
-    fun getTracksOrNull(id: Long) {
-        netState.postValue(UILoader.UIStatus.LOADING)
+    fun getTracks(id: Long) {
+        if (mPage > 1) {
+            netState.postValue(UILoader.UIStatus.LOAD_MORE)
+        } else {
+            netState.postValue(UILoader.UIStatus.LOADING)
+        }
         CommonRequest.getTracks(
             HashMap<String, String>().apply {
-                put(DTransferConstants.ALBUM_ID, "$id")
-//                put(DTransferConstants.SORT, "asc")
-//                put(DTransferConstants.PAGE, "1")
+                put(DTransferConstants.ALBUM_ID, setID(id))
+                put(DTransferConstants.PAGE, mPage.toString())
             },
             object : IDataCallBack<TrackList> {
                 override fun onSuccess(p0: TrackList?) {
-                    if (p0?.tracks.isNullOrEmpty()) {
+                    if (p0 == null || p0.tracks.isNullOrEmpty()) {
                         LogUtils.d(this@AlbumDetailViewModel, "onSuccess NullOrEmpty !!!")
                         netState.postValue(UILoader.UIStatus.EMPTY)
                     } else {
-                        mTrackLiveData.postValue(p0?.tracks)
+                        if (mPage > 1) {
+                            mTrackLiveData.postValue(
+                                ArrayList<Track>().apply {
+                                    addAll(mTrackLiveData.value ?: emptyList())
+                                    addAll(p0.tracks)
+                                }
+                            )
+                        } else {
+                            mTrackLiveData.postValue(p0.tracks)
+                        }
                         netState.postValue(UILoader.UIStatus.SUCCESS)
+                        mPage++
                     }
                 }
 
@@ -75,17 +93,31 @@ class AlbumDetailViewModel : ViewModel() {
             if (tracks.isEmpty()) {
                 putPlayList(this, 0)
             } else {
-                if (this.first() != tracks.first() || this.first() != tracks.last()) {
+                if (this.first().dataId != tracks.first().dataId && this.first().dataId != tracks.last().dataId) {
                     putPlayList(this, 0)
                 } else {
                     if (this.size > tracks.size) {
-                        val playList = if (this.first() == tracks.last()) this.onReverse() else this
+                        val playList =
+                            if (this.first().dataId == tracks.last().dataId) this.onReverse() else this
                         val index = tracks.trackSearch(playerManager.playManager.currSound.dataId)
                         putPlayList(playList, index)
                     }
                 }
             }
         }
+    }
+
+    /**
+     * 搜索控制，搜索新内容时将page调整为1
+     * @param id Long
+     * @return String
+     */
+    private fun setID(id: Long): String {
+        if (id != mSearchId) {
+            mPage = 1
+        }
+        mSearchId = id
+        return mSearchId.toString()
     }
 
     fun stop() = playerManager.stop()

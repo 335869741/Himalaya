@@ -118,4 +118,8 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
 
     implementation "androidx.transition:transition-ktx:1.4.1"
+
+    implementation  'com.scwang.smart:refresh-layout-kernel:2.0.3'      //核心必须依赖
+    implementation  'com.scwang.smart:refresh-header-classics:2.0.3'    //经典刷新头
+    implementation  'com.scwang.smart:refresh-footer-classics:2.0.3'    //经典加载
 }
