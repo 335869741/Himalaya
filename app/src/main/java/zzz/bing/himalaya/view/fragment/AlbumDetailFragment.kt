@@ -67,6 +67,7 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
         recycler.layoutManager = LinearLayoutManager(requireContext())
         mAlbumDetailAdapter = AlbumDetailAdapter(this)
         recycler.adapter = mAlbumDetailAdapter
+        binding.textOnPlay.isSelected = true
     }
 
     override fun initData() {

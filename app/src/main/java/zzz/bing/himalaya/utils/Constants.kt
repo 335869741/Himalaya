@@ -1,6 +1,6 @@
 package zzz.bing.himalaya.utils
 
-const val RECOMMEND_COUNT = 30
+const val RECOMMEND_COUNT = 50
 
 const val MEDIUM_EXPAND_DURATION = 250L
 const val MEDIUM_COLLAPSE_DURATION = 200L
