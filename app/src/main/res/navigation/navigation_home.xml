@@ -13,11 +13,14 @@
         <action
             android:id="@+id/action_homeFragment_to_playerFragment"
             app:destination="@id/playerFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_searchFragment"
+            app:destination="@id/searchFragment" />
     </fragment>
     <fragment
         android:id="@+id/detailFragment"
         android:name="zzz.bing.himalaya.view.fragment.AlbumDetailFragment"
-        android:label="DetailFragment" >
+        android:label="DetailFragment">
         <action
             android:id="@+id/action_detailFragment_to_playerFragment"
             app:destination="@id/playerFragment" />
@@ -26,4 +29,8 @@
         android:id="@+id/playerFragment"
         android:name="zzz.bing.himalaya.view.fragment.PlayerFragment"
         android:label="PlayerFragment" />
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="zzz.bing.himalaya.view.fragment.SearchFragment"
+        android:label="SearchFragment" />
 </navigation>

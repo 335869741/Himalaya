@@ -59,6 +59,9 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>() {
         binding.playerControl.setOnClickListener {
             findNavController().navigate(R.id.action_homeFragment_to_playerFragment)
         }
+        binding.imageSearch.setOnClickListener {
+            findNavController().navigate(R.id.action_homeFragment_to_searchFragment)
+        }
     }
 
     /**
