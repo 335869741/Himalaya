@@ -1,8 +1,7 @@
 package zzz.bing.himalaya.view.fragment
 
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.View
+import android.content.Context
+import android.view.*
 import android.view.View.generateViewId
 import android.widget.SearchView
 import android.widget.TextView
@@ -14,6 +13,10 @@ import androidx.core.view.setPadding
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.scwang.smart.refresh.footer.ClassicsFooter
+import com.scwang.smart.refresh.layout.SmartRefreshLayout
+import com.ximalaya.ting.android.opensdk.model.album.Album
 import com.ximalaya.ting.android.opensdk.model.word.HotWord
 import com.ximalaya.ting.android.opensdk.model.word.QueryResult
 import zzz.bing.himalaya.BaseFragment
@@ -22,13 +25,17 @@ import zzz.bing.himalaya.databinding.FragmentSearchBinding
 import zzz.bing.himalaya.utils.LogUtils
 import zzz.bing.himalaya.utils.SizeUtils
 import zzz.bing.himalaya.view.adapter.SearchLenovoAdapter
+import zzz.bing.himalaya.view.adapter.SearchResultsAdapter
 import zzz.bing.himalaya.viewmodel.SearchViewModel
+import zzz.bing.himalaya.views.UILoader
 import java.util.*
 
 class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
 
     private lateinit var mSearchLenovoAdapter: SearchLenovoAdapter
+    private lateinit var mSearchResultsAdapter: SearchResultsAdapter
     private lateinit var mSearchView: SearchView
+    private lateinit var myUILoad: MyUILoad
 
     override fun initViewModel() = ViewModelProvider(this).get(SearchViewModel::class.java)
 
@@ -43,6 +50,12 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
         mSearchLenovoAdapter = SearchLenovoAdapter()
         binding.frameSearchLenovo.adapter = mSearchLenovoAdapter
         binding.frameSearchLenovo.layoutManager = LinearLayoutManager(requireContext())
+
+        mSearchResultsAdapter = SearchResultsAdapter()
+        myUILoad = MyUILoad(requireContext())
+        binding.frameSearchResults.addView(myUILoad)
+        myUILoad.recycler.layoutManager = LinearLayoutManager(requireContext())
+        myUILoad.recycler.adapter = mSearchResultsAdapter
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -52,7 +65,11 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
         mSearchView.maxWidth = binding.root.width
         mSearchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-//                TODO("Not yet implemented")
+                query?.also {
+                    viewModel.getSearchAlbums(it)
+                    hiddenView()
+                    binding.frameSearchResults.visibility = View.VISIBLE
+                }
                 return false
             }
 
@@ -61,6 +78,11 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
                 return false
             }
         })
+        mSearchView.setOnCloseListener {
+            hiddenView()
+            binding.linearSearchKey.visibility = View.VISIBLE
+            false
+        }
     }
 
     /**
@@ -80,10 +102,14 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
         binding.toolbar.setNavigationOnClickListener {
             findNavController().popBackStack()
         }
+        mSearchLenovoAdapter.setOnClickCallBack { keyWord ->
+            mSearchView.setQuery(keyWord, true)
+        }
     }
 
     override fun initData() {
         viewModel.getHotsWords()
+        viewModel.pageClear()
     }
 
 
@@ -97,6 +123,20 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
             searchLenovoCallBack(it)
             LogUtils.d(this, "list ==> $it")
         }
+        viewModel.searchResults.observe(viewLifecycleOwner) {
+            if (!it.isNullOrEmpty()) {
+                searchResults(it)
+            }
+        }
+    }
+
+    /**
+     * 搜索结果回调
+     * @param albums List<Album>
+     */
+    private fun searchResults(albums: List<Album>) {
+        mSearchResultsAdapter.submitList(albums)
+        LogUtils.d(this, "searchResults")
     }
 
     /**
@@ -104,13 +144,13 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
      * @param list List<QueryResult>?
      */
     private fun searchLenovoCallBack(list: List<QueryResult>?) {
-        hiddenView()
-        if (list.isNullOrEmpty()) {
-            binding.linearSearchKey.visibility = View.VISIBLE
-        } else {
-            binding.frameSearchLenovo.visibility = View.VISIBLE
-            mSearchLenovoAdapter.submitList(list)
-        }
+//        hiddenView()
+//        if (list.isNullOrEmpty()) {
+//            binding.linearSearchKey.visibility = View.VISIBLE
+//        } else {
+//            binding.frameSearchLenovo.visibility = View.VISIBLE
+//            mSearchLenovoAdapter.submitList(list)
+//        }
     }
 
     /**
@@ -175,9 +215,35 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
         }
     }
 
+    /**
+     * 隐藏view
+     */
     private fun hiddenView() {
         binding.frameSearchLenovo.visibility = View.GONE
         binding.linearSearchKey.visibility = View.GONE
         binding.frameSearchResults.visibility = View.GONE
+    }
+
+    inner class MyUILoad(context: Context) : UILoader(context) {
+
+        lateinit var recycler: RecyclerView
+
+        override fun getSuccessView() = SmartRefreshLayout(context).apply {
+            recycler = RecyclerView(context).apply {
+                overScrollMode = View.OVER_SCROLL_NEVER
+                layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                )
+                itemAnimator?.apply { changeDuration = 0 }
+            }
+            setRefreshFooter(ClassicsFooter(context))
+            setRefreshContent(recycler)
+            setHeaderHeight(0f)
+        }
+
+        override fun getUIStatusLiveData() = viewModel.netState
+
+        override fun getLifecycleOwner() = viewLifecycleOwner
     }
 }

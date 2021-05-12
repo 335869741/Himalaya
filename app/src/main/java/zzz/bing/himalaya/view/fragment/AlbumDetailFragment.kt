@@ -46,7 +46,7 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
     private var mIsInit = true
 
     private lateinit var mAlbumDetailAdapter: AlbumDetailAdapter
-    private lateinit var mRecycler: MyRecycler
+    private lateinit var mMyUILoad: MyUILoad
 
     private val mItemId: Long by lazy { arguments?.getLong(ACTION_ITEM_ID)!! }
 
@@ -61,9 +61,9 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
     override fun initViewBinding() = FragmentAlbumDetailBinding.inflate(layoutInflater)
 
     override fun initView() {
-        mRecycler = MyRecycler()
-        binding.frame.addView(mRecycler)
-        val recycler = mRecycler.recycler
+        mMyUILoad = MyUILoad()
+        binding.frame.addView(mMyUILoad)
+        val recycler = mMyUILoad.recycler
         recycler.layoutManager = LinearLayoutManager(requireContext())
         mAlbumDetailAdapter = AlbumDetailAdapter(this)
         recycler.adapter = mAlbumDetailAdapter
@@ -302,7 +302,7 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
         viewModel.getTracks(mItemId)
     }
 
-    inner class MyRecycler : UILoader(requireContext()) {
+    inner class MyUILoad : UILoader(requireContext()) {
         lateinit var recycler: RecyclerView
 
         private val isLoadMore get() = (success as RefreshLayout).state == RefreshState.Loading

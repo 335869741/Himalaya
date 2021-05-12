@@ -20,6 +20,8 @@ class SearchLenovoAdapter : ListAdapter<QueryResult, SearchLenovoAdapter.SearchL
         }
     }
 ) {
+    private var mCallBack: ((String) -> Unit)? = null
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchLenovoViewHolder {
         val binding =
             ItemSearchLenovoBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -30,8 +32,22 @@ class SearchLenovoAdapter : ListAdapter<QueryResult, SearchLenovoAdapter.SearchL
         return viewHolder
     }
 
-    private fun onClick(adapterPosition: Int) {
-        LogUtils.d(this, "index ==> $adapterPosition")
+    /**
+     * 点击事件
+     * @param position Int
+     * @return Unit
+     */
+    private fun onClick(position: Int) {
+        LogUtils.d(this, "index ==> $position")
+        mCallBack?.also { it(getItem(position).keyword) }
+    }
+
+    /**
+     * 设置点击事件回调
+     * @param callBack Function2<[@kotlin.ParameterName] Int, [@kotlin.ParameterName] QueryResult, Unit>
+     */
+    fun setOnClickCallBack(callBack: ((keyWord: String) -> Unit)) {
+        mCallBack = callBack
     }
 
     override fun onBindViewHolder(holder: SearchLenovoViewHolder, position: Int) {

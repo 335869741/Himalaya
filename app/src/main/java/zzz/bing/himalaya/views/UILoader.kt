@@ -22,26 +22,17 @@ abstract class UILoader @JvmOverloads constructor(
 
     private var beforeNetStatus: UIStatus? = null
 
-    private val mLoading by lazy {
-        LayoutLoadingBinding.inflate(LayoutInflater.from(context))
-    }
-    private val mNetworkError by lazy {
-        LayoutErrorBinding.inflate(LayoutInflater.from(context))
-    }
-    private val mEmpty by lazy {
-        LayoutEmptyBinding.inflate(LayoutInflater.from(context))
-    }
+    private val mLoading by lazy { LayoutLoadingBinding.inflate(LayoutInflater.from(context)) }
+    private val mNetworkError by lazy { LayoutErrorBinding.inflate(LayoutInflater.from(context)) }
+    private val mEmpty by lazy { LayoutEmptyBinding.inflate(LayoutInflater.from(context)) }
     private val mSuccess by lazy { getSuccessView() }
-
     private val mUIStatusLiveData by lazy { getUIStatusLiveData() }
-
     private val mLifecycleOwner by lazy { getLifecycleOwner() }
 
-    val loading by lazy { mLoading.root }
-    val networkError by lazy { mNetworkError.root }
-    val empty by lazy { mEmpty.root }
-    val success by lazy { mSuccess }
-
+    val loading get() = mLoading.root
+    val networkError get() = mNetworkError.root
+    val empty get() = mEmpty.root
+    val success get() = mSuccess
 
     init {
         loadView()

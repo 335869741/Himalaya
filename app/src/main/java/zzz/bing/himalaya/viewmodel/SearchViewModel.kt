@@ -7,6 +7,8 @@ import androidx.lifecycle.viewModelScope
 import com.ximalaya.ting.android.opensdk.constants.DTransferConstants
 import com.ximalaya.ting.android.opensdk.datatrasfer.CommonRequest
 import com.ximalaya.ting.android.opensdk.datatrasfer.IDataCallBack
+import com.ximalaya.ting.android.opensdk.model.album.Album
+import com.ximalaya.ting.android.opensdk.model.album.SearchAlbumList
 import com.ximalaya.ting.android.opensdk.model.word.HotWord
 import com.ximalaya.ting.android.opensdk.model.word.HotWordList
 import com.ximalaya.ting.android.opensdk.model.word.QueryResult
@@ -14,17 +16,28 @@ import com.ximalaya.ting.android.opensdk.model.word.SuggestWords
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import zzz.bing.himalaya.utils.LogUtils
+import zzz.bing.himalaya.views.UILoader
 
 class SearchViewModel : ViewModel() {
 
+    private var mSearchPage = 1
+    private var mSearchKeyword = StringBuilder()
+
     private val mHotSearch by lazy { MutableLiveData<List<HotWord>>() }
     private val mSearchLenovo by lazy { MutableLiveData<List<QueryResult>>() }
+    private val mSearchResults by lazy { MutableLiveData<List<Album>>() }
 
+    val netState by lazy { MutableLiveData<UILoader.UIStatus>() }
     val hotSearch: LiveData<List<HotWord>> get() = mHotSearch
     val searchLenovo: LiveData<List<QueryResult>> get() = mSearchLenovo
+    val searchResults: LiveData<List<Album>> get() = mSearchResults
 
+    /**
+     * 获得热词
+     */
     fun getHotsWords() {
-        CommonRequest.getHotWords(mapOf<String, String>(DTransferConstants.TOP to "20"),
+        CommonRequest.getHotWords(
+            mapOf<String, String>(DTransferConstants.TOP to "20"),
             object : IDataCallBack<HotWordList> {
                 override fun onSuccess(p0: HotWordList?) {
                     p0?.also {
@@ -70,5 +83,63 @@ class SearchViewModel : ViewModel() {
         )
     }
 
+    /**
+     *
+     * @param keyWord String
+     */
+    fun getSearchAlbums(keyWord: String) {
+        if (mSearchPage > 1) {
+            netState.postValue(UILoader.UIStatus.LOAD_MORE)
+        } else {
+            netState.postValue(UILoader.UIStatus.LOADING)
+        }
+        CommonRequest.getSearchedAlbums(mapOf<String, String>(
+            DTransferConstants.SEARCH_KEY to keyWord,
+            DTransferConstants.PAGE to getSearchPage(keyWord)
+        ), object : IDataCallBack<SearchAlbumList> {
+            override fun onSuccess(p0: SearchAlbumList?) {
+                if (p0 == null || p0.albums.isNullOrEmpty()) {
+                    LogUtils.w(this@SearchViewModel, "onSuccess NullOrEmpty !!!")
+                    netState.postValue(UILoader.UIStatus.EMPTY)
+                } else {
+                    if (mSearchPage > 1) {
+                        mSearchResults.postValue(
+                            ArrayList<Album>().apply {
+                                addAll(mSearchResults.value ?: emptyList())
+                                addAll(p0.albums)
+                            }
+                        )
+                    } else {
+                        mSearchResults.postValue(p0.albums)
+                    }
+                    netState.postValue(UILoader.UIStatus.SUCCESS)
+                }
+            }
 
+            override fun onError(p0: Int, p1: String?) {
+                LogUtils.e(this@SearchViewModel, "error code ==>$p0 | error message ==>$p1")
+            }
+        })
+    }
+
+
+    /**
+     * 获取页数
+     * @param keyWord String
+     */
+    private fun getSearchPage(keyWord: String): String {
+        if (mSearchKeyword.equals(keyWord)) {
+            mSearchPage++
+        } else {
+            mSearchKeyword.setLength(0)
+            mSearchKeyword.append(keyWord)
+            mSearchPage = 1
+        }
+        return mSearchPage.toString()
+    }
+
+    fun pageClear() {
+        mSearchKeyword.setLength(0)
+        mSearchPage = 1
+    }
 }
