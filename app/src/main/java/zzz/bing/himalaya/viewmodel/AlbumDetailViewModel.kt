@@ -32,9 +32,9 @@ class AlbumDetailViewModel : ViewModel() {
 
     fun getTracks(id: Long) {
         if (mPage > 1) {
-            netState.postValue(UILoader.UIStatus.LOAD_MORE)
+            netState.value = UILoader.UIStatus.LOAD_MORE
         } else {
-            netState.postValue(UILoader.UIStatus.LOADING)
+            netState.value = UILoader.UIStatus.LOADING
         }
         CommonRequest.getTracks(
             HashMap<String, String>().apply {

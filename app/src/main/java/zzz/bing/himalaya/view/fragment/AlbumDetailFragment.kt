@@ -296,7 +296,7 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
     }
 
     /**
-     *
+     * 加载更多事件回调
      */
     private fun loadMoreListener() {
         viewModel.getTracks(mItemId)
@@ -323,7 +323,7 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
             setRefreshFooter(ClassicsFooter(context))
             setRefreshContent(recycler)
             setOnLoadMoreListener {
-                this@AlbumDetailFragment.loadMoreListener()
+                loadMoreListener()
             }
             setHeaderHeight(0f)
         }

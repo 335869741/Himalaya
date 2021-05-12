@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.helper.widget.Flow
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.core.view.setPadding
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -16,6 +17,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.scwang.smart.refresh.footer.ClassicsFooter
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
+import com.scwang.smart.refresh.layout.api.RefreshLayout
+import com.scwang.smart.refresh.layout.constant.RefreshState
 import com.ximalaya.ting.android.opensdk.model.album.Album
 import com.ximalaya.ting.android.opensdk.model.word.HotWord
 import com.ximalaya.ting.android.opensdk.model.word.QueryResult
@@ -36,6 +39,8 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
     private lateinit var mSearchResultsAdapter: SearchResultsAdapter
     private lateinit var mSearchView: SearchView
     private lateinit var myUILoad: MyUILoad
+
+    private var searchString: String? = null
 
     override fun initViewModel() = ViewModelProvider(this).get(SearchViewModel::class.java)
 
@@ -67,8 +72,10 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 query?.also {
                     viewModel.getSearchAlbums(it)
+                    searchString = it
                     hiddenView()
                     binding.frameSearchResults.visibility = View.VISIBLE
+                    myUILoad.setNoMoreData()
                 }
                 return false
             }
@@ -144,13 +151,11 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
      * @param list List<QueryResult>?
      */
     private fun searchLenovoCallBack(list: List<QueryResult>?) {
-//        hiddenView()
-//        if (list.isNullOrEmpty()) {
-//            binding.linearSearchKey.visibility = View.VISIBLE
-//        } else {
-//            binding.frameSearchLenovo.visibility = View.VISIBLE
-//            mSearchLenovoAdapter.submitList(list)
-//        }
+        if (!list.isNullOrEmpty() && !binding.frameSearchResults.isVisible) {
+            hiddenView()
+            binding.frameSearchLenovo.visibility = View.VISIBLE
+            mSearchLenovoAdapter.submitList(list)
+        }
     }
 
     /**
@@ -199,7 +204,9 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
      * @param textView TextView
      */
     private fun flowTextClick(textView: TextView, index: Int) {
-        LogUtils.d(this, "text == ${textView.text} || index ==> $index")
+        mSearchView.setQuery(textView.text, true)
+        mSearchView.isIconified = false
+        LogUtils.i(this, "text == ${textView.text} || index ==> $index")
     }
 
     /**
@@ -224,9 +231,17 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
         binding.frameSearchResults.visibility = View.GONE
     }
 
+    private fun loadMoreEvent() {
+        searchString?.also {
+            viewModel.getSearchAlbums(it)
+        }
+    }
+
     inner class MyUILoad(context: Context) : UILoader(context) {
 
         lateinit var recycler: RecyclerView
+
+        private val isLoadMore get() = (success as RefreshLayout).state == RefreshState.Loading
 
         override fun getSuccessView() = SmartRefreshLayout(context).apply {
             recycler = RecyclerView(context).apply {
@@ -239,11 +254,43 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
             }
             setRefreshFooter(ClassicsFooter(context))
             setRefreshContent(recycler)
-            setHeaderHeight(0f)
+            setEnableRefresh(false)
+            setOnLoadMoreListener { loadMoreEvent() }
+        }
+
+        /**
+         *  加载完成
+         * @param uiStatus UIStatus
+         */
+        override fun uiStatusChange(uiStatus: UIStatus) {
+            if (isLoadMore && uiStatus == UIStatus.SUCCESS) {
+                (success as RefreshLayout).finishLoadMore()
+            }
+        }
+
+        /**
+         * 加载失败，没有更多数据
+         */
+        override fun loadMoreEmpty() {
+            (success as RefreshLayout).finishLoadMoreWithNoMoreData()
+        }
+
+        /**
+         * 加载失败，网络错误
+         */
+        override fun loadMoreError() {
+            (success as RefreshLayout).finishLoadMore(false)
         }
 
         override fun getUIStatusLiveData() = viewModel.netState
 
         override fun getLifecycleOwner() = viewLifecycleOwner
+
+        /**
+         * 恢复没有更多数据的原始状态
+         */
+        fun setNoMoreData() {
+            (success as RefreshLayout).setNoMoreData(false)
+        }
     }
 }

@@ -13,8 +13,8 @@ import zzz.bing.himalaya.utils.getImageUrl
 
 class SearchResultsAdapter : ListAdapter<Album, SearchResultsAdapter.SearchResultsViewHolder>(
     object : DiffUtil.ItemCallback<Album>() {
-        override fun areItemsTheSame(oldItem: Album, newItem: Album) = oldItem.id == newItem.id
-        override fun areContentsTheSame(oldItem: Album, newItem: Album) = oldItem.id == newItem.id
+        override fun areItemsTheSame(oldItem: Album, newItem: Album) = oldItem == newItem
+        override fun areContentsTheSame(oldItem: Album, newItem: Album) = oldItem.equals(newItem)
     }
 ) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchResultsViewHolder {

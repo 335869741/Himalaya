@@ -88,18 +88,20 @@ class SearchViewModel : ViewModel() {
      * @param keyWord String
      */
     fun getSearchAlbums(keyWord: String) {
-        if (mSearchPage > 1) {
-            netState.postValue(UILoader.UIStatus.LOAD_MORE)
+        val page = getSearchPage(keyWord)
+        if (mSearchPage == 1) {
+            netState.value = UILoader.UIStatus.LOADING
         } else {
-            netState.postValue(UILoader.UIStatus.LOADING)
+            netState.value = UILoader.UIStatus.LOAD_MORE
         }
-        CommonRequest.getSearchedAlbums(mapOf<String, String>(
-            DTransferConstants.SEARCH_KEY to keyWord,
-            DTransferConstants.PAGE to getSearchPage(keyWord)
-        ), object : IDataCallBack<SearchAlbumList> {
-            override fun onSuccess(p0: SearchAlbumList?) {
-                if (p0 == null || p0.albums.isNullOrEmpty()) {
-                    LogUtils.w(this@SearchViewModel, "onSuccess NullOrEmpty !!!")
+        CommonRequest.getSearchedAlbums(
+            mapOf<String, String>(
+                DTransferConstants.SEARCH_KEY to keyWord,
+                DTransferConstants.PAGE to page
+            ), object : IDataCallBack<SearchAlbumList> {
+                override fun onSuccess(p0: SearchAlbumList?) {
+                    if (p0 == null || p0.albums.isNullOrEmpty()) {
+                        LogUtils.w(this@SearchViewModel, "onSuccess NullOrEmpty !!!")
                     netState.postValue(UILoader.UIStatus.EMPTY)
                 } else {
                     if (mSearchPage > 1) {
@@ -112,32 +114,51 @@ class SearchViewModel : ViewModel() {
                     } else {
                         mSearchResults.postValue(p0.albums)
                     }
-                    netState.postValue(UILoader.UIStatus.SUCCESS)
+                        netState.postValue(UILoader.UIStatus.SUCCESS)
+                    }
+                    LogUtils.d(
+                        this@SearchViewModel,
+                        """
+                    netState ==> ${netState.value} 
+                    mSearchPage ==> $mSearchPage 
+                    mSearchResults ==> ${mSearchResults.value}
+                    """.trimMargin()
+                    )
                 }
-            }
 
             override fun onError(p0: Int, p1: String?) {
                 LogUtils.e(this@SearchViewModel, "error code ==>$p0 | error message ==>$p1")
+                netState.postValue(UILoader.UIStatus.NETWORK_ERROR)
             }
         })
     }
-
 
     /**
      * 获取页数
      * @param keyWord String
      */
     private fun getSearchPage(keyWord: String): String {
-        if (mSearchKeyword.equals(keyWord)) {
+        if (keyWord == mSearchKeyword.toString()) {
             mSearchPage++
         } else {
             mSearchKeyword.setLength(0)
             mSearchKeyword.append(keyWord)
             mSearchPage = 1
         }
+        LogUtils.i(
+            this,
+            """
+            mSearchPage ==> $mSearchPage 
+            keyWord ==> $keyWord 
+            mSearchKeyword ==> $mSearchKeyword
+            """.trimMargin()
+        )
         return mSearchPage.toString()
     }
 
+    /**
+     *
+     */
     fun pageClear() {
         mSearchKeyword.setLength(0)
         mSearchPage = 1
