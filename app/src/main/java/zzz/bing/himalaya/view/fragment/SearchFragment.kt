@@ -1,6 +1,7 @@
 package zzz.bing.himalaya.view.fragment
 
 import android.content.Context
+import android.os.Bundle
 import android.view.*
 import android.view.View.generateViewId
 import android.widget.SearchView
@@ -28,6 +29,7 @@ import zzz.bing.himalaya.databinding.FragmentSearchBinding
 import zzz.bing.himalaya.db.entity.SearchHistory
 import zzz.bing.himalaya.utils.LogUtils
 import zzz.bing.himalaya.utils.SizeUtils
+import zzz.bing.himalaya.utils.getImageUrl
 import zzz.bing.himalaya.view.adapter.SearchLenovoAdapter
 import zzz.bing.himalaya.view.adapter.SearchResultsAdapter
 import zzz.bing.himalaya.viewmodel.SearchViewModel
@@ -127,6 +129,18 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
         }
         binding.imageClearHistory.setOnClickListener {
             viewModel.clearSearchHistory()
+        }
+        mSearchResultsAdapter.setItemClickEvent {
+            it.getImageUrl()?.also { url ->
+                findNavController().navigate(R.id.action_searchFragment_to_detailFragment,
+                    Bundle().apply {
+                        putString(AlbumDetailFragment.ACTION_COVER_IMAGE_URL, url)
+                        putString(AlbumDetailFragment.ACTION_ALBUM_TITLE, it.albumTitle)
+                        putString(AlbumDetailFragment.ACTION_AUTHOR, it.albumIntro)
+                        putLong(AlbumDetailFragment.ACTION_ITEM_ID, it.id)
+                    }
+                )
+            }
         }
     }
 

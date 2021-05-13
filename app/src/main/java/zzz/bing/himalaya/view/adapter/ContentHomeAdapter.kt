@@ -45,7 +45,6 @@ class ContentHomeAdapter(val fragment: ContentHomeFragment) :
                     }
                 )
             }
-            fragment.onChangItemForId(contentHomeViewHolder.adapterPosition)
         }
         return contentHomeViewHolder
     }

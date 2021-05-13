@@ -61,8 +61,4 @@ class ContentHomeFragment : BaseUILoaderFragment<FragmentContentHomeBinding, Con
     private fun albumListOnChange(albumList: List<Album>) {
         mContentHomeAdapter.submitList(albumList)
     }
-
-    fun onChangItemForId(id:Int){
-        mContentHomeAdapter.notifyItemChanged(id)
-    }
 }
