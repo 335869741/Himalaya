@@ -25,6 +25,7 @@ import com.ximalaya.ting.android.opensdk.model.word.QueryResult
 import zzz.bing.himalaya.BaseFragment
 import zzz.bing.himalaya.R
 import zzz.bing.himalaya.databinding.FragmentSearchBinding
+import zzz.bing.himalaya.db.entity.SearchHistory
 import zzz.bing.himalaya.utils.LogUtils
 import zzz.bing.himalaya.utils.SizeUtils
 import zzz.bing.himalaya.view.adapter.SearchLenovoAdapter
@@ -32,6 +33,7 @@ import zzz.bing.himalaya.view.adapter.SearchResultsAdapter
 import zzz.bing.himalaya.viewmodel.SearchViewModel
 import zzz.bing.himalaya.views.UILoader
 import java.util.*
+import kotlin.collections.ArrayList
 
 class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
 
@@ -71,11 +73,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
         mSearchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 query?.also {
-                    viewModel.getSearchAlbums(it)
-                    searchString = it
-                    hiddenView()
-                    binding.frameSearchResults.visibility = View.VISIBLE
-                    myUILoad.setNoMoreData()
+                    querySubmit(it.trim())
                 }
                 return false
             }
@@ -86,10 +84,22 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
             }
         })
         mSearchView.setOnCloseListener {
-            hiddenView()
-            binding.linearSearchKey.visibility = View.VISIBLE
+            showView(binding.linearSearchKey)
+            viewModel.pageClear()
             false
         }
+    }
+
+    /**
+     * 搜索的回调
+     * @param query String
+     */
+    private fun querySubmit(query: String) {
+        viewModel.getSearchAlbums(query)
+        viewModel.addSearchHistory(query)
+        searchString = query
+        showView(binding.frameSearchResults)
+        myUILoad.setNoMoreData()
     }
 
     /**
@@ -100,8 +110,11 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
         if (!newText.isNullOrBlank()) {
             viewModel.queryTextLenovo(newText)
         } else {
-            hiddenView()
-            binding.linearSearchKey.visibility = View.VISIBLE
+            if (viewModel.searchResults.value.isNullOrEmpty()) {
+                showView(binding.linearSearchKey)
+            } else {
+                showView(binding.frameSearchResults)
+            }
         }
     }
 
@@ -111,6 +124,9 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
         }
         mSearchLenovoAdapter.setOnClickCallBack { keyWord ->
             mSearchView.setQuery(keyWord, true)
+        }
+        binding.imageClearHistory.setOnClickListener {
+            viewModel.clearSearchHistory()
         }
     }
 
@@ -128,12 +144,28 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
         }
         viewModel.searchLenovo.observe(viewLifecycleOwner) {
             searchLenovoCallBack(it)
-            LogUtils.d(this, "list ==> $it")
         }
         viewModel.searchResults.observe(viewLifecycleOwner) {
             if (!it.isNullOrEmpty()) {
                 searchResults(it)
             }
+        }
+        viewModel.searchHistory.observe(viewLifecycleOwner) {
+            historyChange(it)
+        }
+    }
+
+    /**
+     * 搜索历史
+     * @param list List<SearchHistory>
+     */
+    private fun historyChange(list: List<SearchHistory>?) {
+        if (list.isNullOrEmpty()) {
+            binding.frameSearchHistory.visibility = View.GONE
+            binding.constraintHistory.removeAllViews()
+        } else {
+            binding.frameSearchHistory.visibility = View.VISIBLE
+            addWords(binding.constraintHistory, list.map { it.searchText })
         }
     }
 
@@ -152,8 +184,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
      */
     private fun searchLenovoCallBack(list: List<QueryResult>?) {
         if (!list.isNullOrEmpty() && !binding.frameSearchResults.isVisible) {
-            hiddenView()
-            binding.frameSearchLenovo.visibility = View.VISIBLE
+            showView(binding.frameSearchLenovo)
             mSearchLenovoAdapter.submitList(list)
         }
     }
@@ -163,7 +194,8 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
      * @param list List<HotWord>
      */
     private fun getHotWords(list: List<HotWord>) {
-        addWords(binding.constraintHot, list)
+        val words = list.map { it.searchword } //转换为 list《string》
+        addWords(binding.constraintHot, words)
     }
 
     /**
@@ -171,17 +203,17 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
      * @param constraint ConstraintLayout
      * @param list List<HotWord>
      */
-    private fun addWords(constraint: ConstraintLayout, list: List<HotWord>) {
+    private fun addWords(constraint: ConstraintLayout, list: List<String>) {
         val flow = newFlow()
         if (constraint.childCount > 0) {
             constraint.removeAllViews()
         }
         constraint.addView(flow)
         val ids = ArrayList<Int>()
-        list.forEachIndexed { index, hotWord ->
+        list.forEachIndexed { index, word ->
             constraint.addView(
                 TextView(requireContext()).apply {
-                    text = hotWord.searchword
+                    text = word
                     val randomId = generateViewId()
                     id = randomId
                     ids.add(randomId)
@@ -223,14 +255,19 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
     }
 
     /**
-     * 隐藏view
+     * 隐藏其他view,显示特定view
+     * @param view View
      */
-    private fun hiddenView() {
+    private fun showView(view: View) {
         binding.frameSearchLenovo.visibility = View.GONE
         binding.linearSearchKey.visibility = View.GONE
         binding.frameSearchResults.visibility = View.GONE
+        view.visibility = View.VISIBLE
     }
 
+    /**
+     * 加载更多的回调
+     */
     private fun loadMoreEvent() {
         searchString?.also {
             viewModel.getSearchAlbums(it)

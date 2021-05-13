@@ -15,6 +15,7 @@ import com.ximalaya.ting.android.opensdk.model.word.QueryResult
 import com.ximalaya.ting.android.opensdk.model.word.SuggestWords
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import zzz.bing.himalaya.db.SearchHistoryRepository
 import zzz.bing.himalaya.utils.LogUtils
 import zzz.bing.himalaya.views.UILoader
 
@@ -31,6 +32,7 @@ class SearchViewModel : ViewModel() {
     val hotSearch: LiveData<List<HotWord>> get() = mHotSearch
     val searchLenovo: LiveData<List<QueryResult>> get() = mSearchLenovo
     val searchResults: LiveData<List<Album>> get() = mSearchResults
+    val searchHistory get() = SearchHistoryRepository.getAllSearchHistory()
 
     /**
      * 获得热词
@@ -157,10 +159,27 @@ class SearchViewModel : ViewModel() {
     }
 
     /**
-     *
+     * 搜索结束时清空搜索词和page设为1
+     * 防止重新搜索时会跳过第一页
      */
     fun pageClear() {
         mSearchKeyword.setLength(0)
         mSearchPage = 1
+    }
+
+    /**
+     * 用户主动清空历史数据
+     */
+    fun clearSearchHistory() {
+        SearchHistoryRepository.removeAllSearchHistory()
+    }
+
+    /**
+     * 搜索时添加搜索历史
+     * 该历史已有时置顶
+     * @param query String
+     */
+    fun addSearchHistory(query: String) {
+        SearchHistoryRepository.addSearchHistory(query)
     }
 }
