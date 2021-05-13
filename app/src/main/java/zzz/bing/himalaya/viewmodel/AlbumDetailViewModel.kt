@@ -1,14 +1,15 @@
 package zzz.bing.himalaya.viewmodel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
 import com.ximalaya.ting.android.opensdk.constants.DTransferConstants
 import com.ximalaya.ting.android.opensdk.datatrasfer.CommonRequest
 import com.ximalaya.ting.android.opensdk.datatrasfer.IDataCallBack
 import com.ximalaya.ting.android.opensdk.model.PlayableModel
 import com.ximalaya.ting.android.opensdk.model.track.Track
 import com.ximalaya.ting.android.opensdk.model.track.TrackList
+import kotlinx.coroutines.*
+import zzz.bing.himalaya.db.AlbumSubscribeRepository
+import zzz.bing.himalaya.db.entity.AlbumSubscribe
 import zzz.bing.himalaya.repository.PlayerManager
 import zzz.bing.himalaya.utils.LogUtils
 import zzz.bing.himalaya.utils.onReverse
@@ -19,6 +20,8 @@ class AlbumDetailViewModel : ViewModel() {
 
     private var mPage = 1
     private var mSearchId = 0L
+    private var mSubscribeCallBack: ((isSubscribe: Boolean) -> Unit)? = null
+    private var mIsSubscribe: Boolean = false
 
     private val playerManager get() = PlayerManager.instance
     private val mTrackLiveData by lazy { MutableLiveData<List<Track>>() }
@@ -30,6 +33,10 @@ class AlbumDetailViewModel : ViewModel() {
     val playerState get() = playerManager.playerState
     val voice: PlayableModel get() = playerManager.playManager.currSound
 
+    /**
+     * 用id获得详情
+     * @param id Long
+     */
     fun getTracks(id: Long) {
         if (mPage > 1) {
             netState.value = UILoader.UIStatus.LOAD_MORE
@@ -70,7 +77,7 @@ class AlbumDetailViewModel : ViewModel() {
     }
 
     /**
-     *
+     * 提交播放列表
      * @param list List<Track>
      * @param position Int
      */
@@ -85,7 +92,7 @@ class AlbumDetailViewModel : ViewModel() {
     }
 
     /**
-     *
+     * 使用已有的播放列表继续播放或播放当前列表
      */
     fun onPlayForPlayList() {
         trackLiveData.value?.apply {
@@ -122,4 +129,35 @@ class AlbumDetailViewModel : ViewModel() {
 
     fun stop() = playerManager.stop()
     fun play() = playerManager.play()
+
+    /**
+     * 添加订阅
+     * @param subscribe AlbumSubscribe
+     */
+    fun subscribe(subscribe: AlbumSubscribe) {
+        if (mIsSubscribe) {
+            AlbumSubscribeRepository.addAlbumSubscribe(subscribe)
+        } else {
+            AlbumSubscribeRepository.removeAlbumSubscribe(subscribe)
+        }
+    }
+
+    /**
+     * 设置回调并判断是否已订阅
+     * @param subscribe AlbumSubscribe
+     * @param block Function1<Boolean -> Unit>
+     */
+    fun setSubscribeCallback(subscribe: AlbumSubscribe, block: (isSubscribe: Boolean) -> Unit) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val list = AlbumSubscribeRepository.getAlbumSubscribe(subscribe)
+            mSubscribeCallBack?.also {
+                mIsSubscribe = !list.isNullOrEmpty()
+                it(mIsSubscribe)
+                LogUtils.d(this, "setSubscribeCallback CoroutineScope")
+            }
+        }
+        mSubscribeCallBack = block
+        LogUtils.d(this, "setSubscribeCallback block")
+//        TODO() 未完成
+    }
 }

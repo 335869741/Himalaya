@@ -40,8 +40,8 @@ class ContentHomeAdapter(val fragment: ContentHomeFragment) :
                     Bundle().apply {
                         putString(AlbumDetailFragment.ACTION_COVER_IMAGE_URL, it)
                         putString(AlbumDetailFragment.ACTION_ALBUM_TITLE, item.albumTitle)
-                        putString(AlbumDetailFragment.ACTION_AUTHOR, item.albumIntro)
-                        putLong(AlbumDetailFragment.ACTION_ITEM_ID,item.id)
+                        putString(AlbumDetailFragment.ACTION_INFO, item.albumIntro)
+                        putLong(AlbumDetailFragment.ACTION_ITEM_ID, item.id)
                     }
                 )
             }

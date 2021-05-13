@@ -2,6 +2,9 @@ package zzz.bing.himalaya.utils
 
 import com.ximalaya.ting.android.opensdk.model.album.Album
 import com.ximalaya.ting.android.opensdk.model.track.Track
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
  *
@@ -19,10 +22,7 @@ fun Album.getImageUrl(): String? {
             coverUrlSmall
         }
         else -> {
-            LogUtils.w(
-                this,
-                "ImageUrl is null"
-            )
+            LogUtils.w(this, "ImageUrl is null")
             null
         }
     }
@@ -44,10 +44,7 @@ fun Track.getImageUrl(): String? {
             coverUrlSmall
         }
         else -> {
-            LogUtils.w(
-                this,
-                "ImageUrl is null"
-            )
+            LogUtils.w(this, "ImageUrl is null")
             null
         }
     }
@@ -117,4 +114,15 @@ fun <T> List<T>.onReverse(): ArrayList<T> {
     array.addAll(this)
     array.reverse()
     return array
+}
+
+/**
+ * 数据库操作需要多线程
+ * 使用高阶函数简化操作
+ * @param block Function0<Unit>
+ */
+fun fire(block: suspend () -> Unit) {
+    CoroutineScope(Dispatchers.IO).launch {
+        block()
+    }
 }

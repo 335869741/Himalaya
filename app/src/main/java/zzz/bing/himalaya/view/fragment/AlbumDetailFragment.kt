@@ -16,6 +16,7 @@ import com.ximalaya.ting.android.opensdk.model.track.Track
 import zzz.bing.himalaya.BaseFragment
 import zzz.bing.himalaya.R
 import zzz.bing.himalaya.databinding.FragmentAlbumDetailBinding
+import zzz.bing.himalaya.db.entity.AlbumSubscribe
 import zzz.bing.himalaya.repository.PlayerManager
 import zzz.bing.himalaya.utils.LogUtils
 import zzz.bing.himalaya.utils.trackSearch
@@ -29,7 +30,7 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
     companion object {
         const val ACTION_COVER_IMAGE_URL = "action_cover_image_base64"
         const val ACTION_ALBUM_TITLE = "action_album_title"
-        const val ACTION_AUTHOR = "action_author"
+        const val ACTION_INFO = "action_info"
         const val ACTION_ITEM_ID = "item_id"
     }
 
@@ -41,7 +42,15 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
     private lateinit var mAlbumDetailAdapter: AlbumDetailAdapter
     private lateinit var mMyUILoad: MyUILoad
 
-    private val mItemId: Long by lazy { arguments?.getLong(ACTION_ITEM_ID)!! }
+    private val albumSubscribe by lazy {
+        AlbumSubscribe(
+            arguments?.getString(ACTION_ALBUM_TITLE)
+                ?: requireContext().getString(R.string.app_name),
+            arguments?.getString(ACTION_INFO) ?: requireContext().getString(R.string.app_name),
+            arguments?.getString(ACTION_COVER_IMAGE_URL),
+            arguments?.getLong(ACTION_ITEM_ID) ?: 0L
+        )
+    }
 
     override fun initViewModel() = ViewModelProvider(this).get(AlbumDetailViewModel::class.java)
 
@@ -58,18 +67,14 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
     }
 
     override fun initData() {
-        arguments?.also {
-            binding.collapsingToolbar.title =
-                it.getString(ACTION_ALBUM_TITLE, requireContext().getString(R.string.app_name))
-            binding.textAuthor.text =
-                it.getString(ACTION_AUTHOR, requireContext().getString(R.string.app_name))
-            it.getString(ACTION_COVER_IMAGE_URL)?.also { url ->
-                val glide = Glide.with(this).load(url).dontTransform()
-                glide.into(binding.imageAlbumIcon)
-                glide.into(binding.imageBackground)
-            }
+        binding.collapsingToolbar.title = albumSubscribe.title
+        binding.textAuthor.text = albumSubscribe.info
+        albumSubscribe.coverUrl?.also { url ->
+            val glide = Glide.with(this).load(url).dontTransform()
+            glide.into(binding.imageAlbumIcon)
+            glide.into(binding.imageBackground)
         }
-        viewModel.getTracks(mItemId)
+        viewModel.getTracks(albumSubscribe.id)
     }
 
     override fun initListener() {
@@ -87,27 +92,33 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
         binding.textOnPlay.setOnClickListener {
             onPlayClick()
         }
-        binding.textOnSelect.setOnClickListener { view ->
-            onSelectListClick(view)
+        binding.textOnSelect.setOnClickListener {
+            onSelectListClick()
         }
-        binding.textSubscribe.setOnClickListener { view ->
-            onSubscribeClick(view)
+        binding.textSubscribe.setOnClickListener {
+            onSubscribeClick()
+        }
+        viewModel.setSubscribeCallback(albumSubscribe) {
+            binding.textSubscribe.text =
+                if (it) {
+                    "已订阅"
+                } else {
+                    "+ 订阅"
+                }
         }
     }
 
     /**
      * 订阅事件
-     * @param view View
      */
-    private fun onSubscribeClick(view: View) {
-        LogUtils.d(this, "onSubscribeClick")
+    private fun onSubscribeClick() {
+        viewModel.subscribe(albumSubscribe)
     }
 
     /**
      * 选集事件
-     * @param view View
      */
-    private fun onSelectListClick(view: View) {
+    private fun onSelectListClick() {
         LogUtils.d(this, "onSelectListClick")
     }
 
@@ -247,7 +258,7 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
      * 加载更多事件回调
      */
     private fun loadMoreListener() {
-        viewModel.getTracks(mItemId)
+        viewModel.getTracks(albumSubscribe.id)
     }
 
     inner class MyUILoad : UILoader(requireContext()) {

@@ -23,5 +23,5 @@ interface SearchHistoryDao {
     fun findSearchHistoryBySearchText(searchText: String): List<SearchHistory>
 
     @Delete
-    suspend fun deleteSearchHistory(vararg searchHistory: SearchHistory)
+    fun deleteSearchHistory(vararg searchHistory: SearchHistory)
 }

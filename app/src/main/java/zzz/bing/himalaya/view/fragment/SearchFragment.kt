@@ -136,7 +136,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
                     Bundle().apply {
                         putString(AlbumDetailFragment.ACTION_COVER_IMAGE_URL, url)
                         putString(AlbumDetailFragment.ACTION_ALBUM_TITLE, it.albumTitle)
-                        putString(AlbumDetailFragment.ACTION_AUTHOR, it.albumIntro)
+                        putString(AlbumDetailFragment.ACTION_INFO, it.albumIntro)
                         putLong(AlbumDetailFragment.ACTION_ITEM_ID, it.id)
                     }
                 )

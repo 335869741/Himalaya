@@ -1,11 +1,9 @@
 package zzz.bing.himalaya.db
 
 import androidx.lifecycle.LiveData
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import zzz.bing.himalaya.db.database.SearchHistoryDatabase
 import zzz.bing.himalaya.db.entity.SearchHistory
+import zzz.bing.himalaya.utils.fire
 
 object SearchHistoryRepository {
     private val mSearchHistoryDao by lazy {
@@ -17,7 +15,7 @@ object SearchHistoryRepository {
      * @param text String
      * @return Job
      */
-    fun addSearchHistory(text: String) = set {
+    fun addSearchHistory(text: String) = fire {
         val texts = mSearchHistoryDao.findSearchHistoryBySearchText(text)
         if (!texts.isNullOrEmpty()) {
             mSearchHistoryDao.deleteSearchHistory(* texts.toTypedArray())
@@ -38,18 +36,7 @@ object SearchHistoryRepository {
      * 删除所有查询的历史数据
      * @return Job
      */
-    fun removeAllSearchHistory() = set {
+    fun removeAllSearchHistory() = fire {
         mSearchHistoryDao.deleteAllSearchHistory()
-    }
-
-    /**
-     * 数据库操作需要多线程
-     * 使用高阶函数简化操作
-     * @param block Function0<Unit>
-     */
-    private fun set(block: suspend () -> Unit) {
-        CoroutineScope(Dispatchers.IO).launch {
-            block()
-        }
     }
 }
