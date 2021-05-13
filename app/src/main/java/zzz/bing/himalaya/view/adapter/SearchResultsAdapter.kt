@@ -8,7 +8,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.ximalaya.ting.android.opensdk.model.album.Album
 import zzz.bing.himalaya.databinding.ItemSearchResultsBinding
-import zzz.bing.himalaya.utils.LogUtils
 import zzz.bing.himalaya.utils.getImageUrl
 
 class SearchResultsAdapter : ListAdapter<Album, SearchResultsAdapter.SearchResultsViewHolder>(
@@ -17,22 +16,24 @@ class SearchResultsAdapter : ListAdapter<Album, SearchResultsAdapter.SearchResul
         override fun areContentsTheSame(oldItem: Album, newItem: Album) = oldItem.equals(newItem)
     }
 ) {
+    private var itemClickEvent: ((item: Album) -> Unit)? = null
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchResultsViewHolder {
         val binding =
             ItemSearchResultsBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         val viewHolder = SearchResultsViewHolder(binding)
         viewHolder.itemView.setOnClickListener {
-            onItemClick(getItem(viewHolder.adapterPosition))
+            itemClickEvent?.also { it(getItem(viewHolder.adapterPosition)) }
         }
         return viewHolder
     }
 
     /**
-     * item的点击事件
-     * @param item Album?
+     * 外部设置事件处理
+     * @param block Function1<Album -> Unit>
      */
-    private fun onItemClick(item: Album) {
-        LogUtils.d(this, "item ==> $item")
+    fun setItemClickEvent(block: (item: Album) -> Unit) {
+        itemClickEvent = block
     }
 
     override fun onBindViewHolder(holder: SearchResultsViewHolder, position: Int) {

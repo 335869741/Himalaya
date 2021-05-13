@@ -3,8 +3,6 @@ package zzz.bing.himalaya.view.adapter
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.view.ViewCompat
-import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -13,10 +11,9 @@ import com.bumptech.glide.Glide
 import com.ximalaya.ting.android.opensdk.model.album.Album
 import zzz.bing.himalaya.R
 import zzz.bing.himalaya.databinding.ItemContentHomeBinding
+import zzz.bing.himalaya.utils.getImageUrl
 import zzz.bing.himalaya.view.fragment.AlbumDetailFragment
 import zzz.bing.himalaya.view.fragment.ContentHomeFragment
-import zzz.bing.himalaya.utils.doOnEnd
-import zzz.bing.himalaya.utils.getImageUrl
 
 //RecyclerView的ListAdapter有丰富的动画
 class ContentHomeAdapter(val fragment: ContentHomeFragment) :
@@ -45,11 +42,7 @@ class ContentHomeAdapter(val fragment: ContentHomeFragment) :
                         putString(AlbumDetailFragment.ACTION_ALBUM_TITLE, item.albumTitle)
                         putString(AlbumDetailFragment.ACTION_AUTHOR, item.albumIntro)
                         putLong(AlbumDetailFragment.ACTION_ITEM_ID,item.id)
-                    }, null,
-                    FragmentNavigatorExtras(
-                        binding.imageItemIcon to "${AlbumDetailFragment.TRANSITION_IMAGE_ICON}_${item.id}"
-//                                binding.imageItemIcon to AlbumDetailFragment.TRANSITION_IMAGE_ICON
-                    )
+                    }
                 )
             }
             fragment.onChangItemForId(contentHomeViewHolder.adapterPosition)
@@ -69,24 +62,9 @@ class ContentHomeAdapter(val fragment: ContentHomeFragment) :
         item.getImageUrl()?.also { url ->
             Glide.with(holder.itemView.context)
                 .load(url)
-                .doOnEnd { fragment.startPostponedEnterTransition() }
                 .into(binding.imageItemIcon)
         }
-        onSetTransitionName(binding, item)
     }
-
-    /**
-     * 共享元素设置标签
-     * @param binding ItemContentHomeBinding
-     * @param item Album
-     */
-    private fun onSetTransitionName(binding: ItemContentHomeBinding, item: Album) {
-        ViewCompat.setTransitionName(
-            binding.imageItemIcon,
-            "${AlbumDetailFragment.TRANSITION_IMAGE_ICON}_${item.id}"
-        )
-    }
-
 
     /**
      * 数字转换为以万为单位的字符串
