@@ -11,7 +11,7 @@ object AlbumSubscribeRepository {
         AlbumSubscribeDatabase.getSearchHistoryDatabase().userAlbumSubscribeDao()
     }
 
-    var pageSize = 50
+    var pageSize = 10
 
     /**
      * 添加
@@ -32,9 +32,7 @@ object AlbumSubscribeRepository {
      * @return LiveData<List<SearchHistory>>
      */
     fun getAlbumSubscribe(page: Int): LiveData<List<AlbumSubscribe>> {
-        val limit = pageSize
-        val offset = page - 1 * pageSize
-        return getAlbumSubscribe(limit, offset)
+        return getAlbumSubscribe(page, pageSize)
     }
 
     /**
@@ -46,7 +44,7 @@ object AlbumSubscribeRepository {
      */
     fun getAlbumSubscribe(page: Int, pageSize: Int): LiveData<List<AlbumSubscribe>> {
         val limit = pageSize
-        val offset = page - 1 * pageSize
+        val offset = (page - 1) * pageSize
         return mAlbumSubscribeDao.findAlbumSubscribeByLimitAndOffset(limit, offset)
     }
 

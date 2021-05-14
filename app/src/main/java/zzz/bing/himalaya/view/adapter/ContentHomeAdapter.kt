@@ -39,10 +39,6 @@ class ContentHomeAdapter(val fragment: ContentHomeFragment) :
                 fragment.findNavController().navigate(
                     R.id.action_homeFragment_to_detailFragment,
                     Bundle().apply {
-//                        putString(AlbumDetailFragment.ACTION_COVER_IMAGE_URL, it)
-//                        putString(AlbumDetailFragment.ACTION_ALBUM_TITLE, item.albumTitle)
-//                        putString(AlbumDetailFragment.ACTION_INFO, item.albumIntro)
-//                        putLong(AlbumDetailFragment.ACTION_ITEM_ID, item.id)
                         putParcelable(
                             AlbumDetailFragment.ACTION_ALBUM,
                             AlbumSubscribe(
