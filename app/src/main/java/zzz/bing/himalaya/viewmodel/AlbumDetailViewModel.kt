@@ -149,7 +149,7 @@ class AlbumDetailViewModel : ViewModel() {
      * @param album AlbumSubscribe
      * @return LiveData<List<AlbumSubscribe>>
      */
-    fun getSubscribeAlbum(album: AlbumSubscribe): LiveData<List<AlbumSubscribe>> {
+    fun getSubscribeAlbum(album: AlbumSubscribe): LiveData<AlbumSubscribe> {
         return AlbumSubscribeRepository.getSubscribe(album)
     }
 }

@@ -11,6 +11,7 @@ import com.bumptech.glide.Glide
 import com.ximalaya.ting.android.opensdk.model.album.Album
 import zzz.bing.himalaya.R
 import zzz.bing.himalaya.databinding.ItemContentHomeBinding
+import zzz.bing.himalaya.db.entity.AlbumSubscribe
 import zzz.bing.himalaya.utils.getImageUrl
 import zzz.bing.himalaya.view.fragment.AlbumDetailFragment
 import zzz.bing.himalaya.view.fragment.ContentHomeFragment
@@ -38,10 +39,21 @@ class ContentHomeAdapter(val fragment: ContentHomeFragment) :
                 fragment.findNavController().navigate(
                     R.id.action_homeFragment_to_detailFragment,
                     Bundle().apply {
-                        putString(AlbumDetailFragment.ACTION_COVER_IMAGE_URL, it)
-                        putString(AlbumDetailFragment.ACTION_ALBUM_TITLE, item.albumTitle)
-                        putString(AlbumDetailFragment.ACTION_INFO, item.albumIntro)
-                        putLong(AlbumDetailFragment.ACTION_ITEM_ID, item.id)
+//                        putString(AlbumDetailFragment.ACTION_COVER_IMAGE_URL, it)
+//                        putString(AlbumDetailFragment.ACTION_ALBUM_TITLE, item.albumTitle)
+//                        putString(AlbumDetailFragment.ACTION_INFO, item.albumIntro)
+//                        putLong(AlbumDetailFragment.ACTION_ITEM_ID, item.id)
+                        putParcelable(
+                            AlbumDetailFragment.ACTION_ALBUM,
+                            AlbumSubscribe(
+                                item.albumTitle,
+                                item.albumIntro,
+                                it,
+                                item.id,
+                                item.includeTrackCount,
+                                item.playCount
+                            )
+                        )
                     }
                 )
             }

@@ -20,7 +20,7 @@ interface AlbumSubscribeDao {
     fun findAlbumSubscribeById(id: Long): List<AlbumSubscribe>
 
     @Query("SELECT * FROM album_subscribe where id = :id")
-    fun findAlbumSubscribeByIdWithLiveData(id: Long): LiveData<List<AlbumSubscribe>>
+    fun findAlbumSubscribeByIdWithLiveData(id: Long): LiveData<AlbumSubscribe>
 
     @Delete
     suspend fun deleteAlbumSubscribe(vararg searchHistory: AlbumSubscribe)

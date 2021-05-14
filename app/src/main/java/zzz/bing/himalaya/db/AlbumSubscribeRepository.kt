@@ -69,9 +69,9 @@ object AlbumSubscribeRepository {
     /**
      * 查询订阅列表，用于判断是否已订阅
      * @param subscribe AlbumSubscribe
-     * @return LiveData<List<AlbumSubscribe>>
+     * @return LiveData<AlbumSubscribe>
      */
-    fun getSubscribe(subscribe: AlbumSubscribe): LiveData<List<AlbumSubscribe>> {
+    fun getSubscribe(subscribe: AlbumSubscribe): LiveData<AlbumSubscribe> {
         return mAlbumSubscribeDao.findAlbumSubscribeByIdWithLiveData(subscribe.id)
     }
 }

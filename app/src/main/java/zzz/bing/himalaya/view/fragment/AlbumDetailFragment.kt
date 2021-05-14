@@ -28,10 +28,7 @@ import zzz.bing.himalaya.views.UILoader
 class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetailViewModel>() {
 
     companion object {
-        const val ACTION_COVER_IMAGE_URL = "action_cover_image_base64"
-        const val ACTION_ALBUM_TITLE = "action_album_title"
-        const val ACTION_INFO = "action_info"
-        const val ACTION_ITEM_ID = "item_id"
+        const val ACTION_ALBUM = "action_album"
     }
 
     //是否展开
@@ -44,13 +41,7 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
     private lateinit var mMyUILoad: MyUILoad
 
     private val mAlbumSubscribe by lazy {
-        AlbumSubscribe(
-            arguments?.getString(ACTION_ALBUM_TITLE)
-                ?: requireContext().getString(R.string.app_name),
-            arguments?.getString(ACTION_INFO) ?: requireContext().getString(R.string.app_name),
-            arguments?.getString(ACTION_COVER_IMAGE_URL),
-            arguments?.getLong(ACTION_ITEM_ID) ?: 0L
-        )
+        (arguments?.getParcelable(ACTION_ALBUM) as AlbumSubscribe?)!!
     }
 
     override fun initViewModel() = ViewModelProvider(this).get(AlbumDetailViewModel::class.java)
@@ -101,7 +92,7 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
         }
         viewModel.getSubscribeAlbum(mAlbumSubscribe).observe(viewLifecycleOwner) {
             binding.textSubscribe.text =
-                if (!it.isNullOrEmpty()) {
+                if (it != null) {
                     misSubscribe = true
                     "已订阅"
                 } else {

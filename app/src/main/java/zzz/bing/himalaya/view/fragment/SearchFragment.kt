@@ -26,6 +26,7 @@ import com.ximalaya.ting.android.opensdk.model.word.QueryResult
 import zzz.bing.himalaya.BaseFragment
 import zzz.bing.himalaya.R
 import zzz.bing.himalaya.databinding.FragmentSearchBinding
+import zzz.bing.himalaya.db.entity.AlbumSubscribe
 import zzz.bing.himalaya.db.entity.SearchHistory
 import zzz.bing.himalaya.utils.LogUtils
 import zzz.bing.himalaya.utils.SizeUtils
@@ -134,10 +135,17 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
             it.getImageUrl()?.also { url ->
                 findNavController().navigate(R.id.action_searchFragment_to_detailFragment,
                     Bundle().apply {
-                        putString(AlbumDetailFragment.ACTION_COVER_IMAGE_URL, url)
-                        putString(AlbumDetailFragment.ACTION_ALBUM_TITLE, it.albumTitle)
-                        putString(AlbumDetailFragment.ACTION_INFO, it.albumIntro)
-                        putLong(AlbumDetailFragment.ACTION_ITEM_ID, it.id)
+                        putParcelable(
+                            AlbumDetailFragment.ACTION_ALBUM,
+                            AlbumSubscribe(
+                                it.albumTitle,
+                                it.albumIntro,
+                                url,
+                                it.id,
+                                it.includeTrackCount,
+                                it.playCount
+                            )
+                        )
                     }
                 )
             }
