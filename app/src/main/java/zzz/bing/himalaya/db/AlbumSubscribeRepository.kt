@@ -27,15 +27,6 @@ object AlbumSubscribeRepository {
     }
 
     /**
-     * 根据特定内容搜索
-     * @param albumSubscribe AlbumSubscribe
-     * @return List<AlbumSubscribe>
-     */
-    fun getAlbumSubscribe(albumSubscribe: AlbumSubscribe): List<AlbumSubscribe> {
-        return mAlbumSubscribeDao.findAlbumSubscribeById(albumSubscribe.id)
-    }
-
-    /**
      * 使用页数获得订阅内容
      * liveData不用挂起，room自动优化
      * @return LiveData<List<SearchHistory>>
@@ -73,5 +64,14 @@ object AlbumSubscribeRepository {
      */
     fun removeAlbumSubscribe(albumSubscribe: AlbumSubscribe) = fire {
         mAlbumSubscribeDao.deleteAlbumSubscribe(albumSubscribe)
+    }
+
+    /**
+     * 查询订阅列表，用于判断是否已订阅
+     * @param subscribe AlbumSubscribe
+     * @return LiveData<List<AlbumSubscribe>>
+     */
+    fun getSubscribe(subscribe: AlbumSubscribe): LiveData<List<AlbumSubscribe>> {
+        return mAlbumSubscribeDao.findAlbumSubscribeByIdWithLiveData(subscribe.id)
     }
 }

@@ -20,8 +20,6 @@ class AlbumDetailViewModel : ViewModel() {
 
     private var mPage = 1
     private var mSearchId = 0L
-    private var mSubscribeCallBack: ((isSubscribe: Boolean) -> Unit)? = null
-    private var mIsSubscribe: Boolean = false
 
     private val playerManager get() = PlayerManager.instance
     private val mTrackLiveData by lazy { MutableLiveData<List<Track>>() }
@@ -134,30 +132,24 @@ class AlbumDetailViewModel : ViewModel() {
      * 添加订阅
      * @param subscribe AlbumSubscribe
      */
-    fun subscribe(subscribe: AlbumSubscribe) {
-        if (mIsSubscribe) {
-            AlbumSubscribeRepository.addAlbumSubscribe(subscribe)
-        } else {
-            AlbumSubscribeRepository.removeAlbumSubscribe(subscribe)
-        }
+    fun addSubscribe(subscribe: AlbumSubscribe) {
+        AlbumSubscribeRepository.addAlbumSubscribe(subscribe)
     }
 
     /**
-     * 设置回调并判断是否已订阅
+     * 删除订阅
      * @param subscribe AlbumSubscribe
-     * @param block Function1<Boolean -> Unit>
      */
-    fun setSubscribeCallback(subscribe: AlbumSubscribe, block: (isSubscribe: Boolean) -> Unit) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val list = AlbumSubscribeRepository.getAlbumSubscribe(subscribe)
-            mSubscribeCallBack?.also {
-                mIsSubscribe = !list.isNullOrEmpty()
-                it(mIsSubscribe)
-                LogUtils.d(this, "setSubscribeCallback CoroutineScope")
-            }
-        }
-        mSubscribeCallBack = block
-        LogUtils.d(this, "setSubscribeCallback block")
-//        TODO() 未完成
+    fun removeSubscribe(subscribe: AlbumSubscribe) {
+        AlbumSubscribeRepository.removeAlbumSubscribe(subscribe)
+    }
+
+    /**
+     * 查询订阅列表，用于判断是否已订阅
+     * @param album AlbumSubscribe
+     * @return LiveData<List<AlbumSubscribe>>
+     */
+    fun getSubscribeAlbum(album: AlbumSubscribe): LiveData<List<AlbumSubscribe>> {
+        return AlbumSubscribeRepository.getSubscribe(album)
     }
 }

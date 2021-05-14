@@ -38,11 +38,12 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
     private var isExpanded = true
     private var mPassPlay = false
     private var mIsInit = true
+    private var misSubscribe = false
 
     private lateinit var mAlbumDetailAdapter: AlbumDetailAdapter
     private lateinit var mMyUILoad: MyUILoad
 
-    private val albumSubscribe by lazy {
+    private val mAlbumSubscribe by lazy {
         AlbumSubscribe(
             arguments?.getString(ACTION_ALBUM_TITLE)
                 ?: requireContext().getString(R.string.app_name),
@@ -67,14 +68,14 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
     }
 
     override fun initData() {
-        binding.collapsingToolbar.title = albumSubscribe.title
-        binding.textAuthor.text = albumSubscribe.info
-        albumSubscribe.coverUrl?.also { url ->
+        binding.collapsingToolbar.title = mAlbumSubscribe.title
+        binding.textAuthor.text = mAlbumSubscribe.info
+        mAlbumSubscribe.coverUrl?.also { url ->
             val glide = Glide.with(this).load(url).dontTransform()
             glide.into(binding.imageAlbumIcon)
             glide.into(binding.imageBackground)
         }
-        viewModel.getTracks(albumSubscribe.id)
+        viewModel.getTracks(mAlbumSubscribe.id)
     }
 
     override fun initListener() {
@@ -98,21 +99,27 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
         binding.textSubscribe.setOnClickListener {
             onSubscribeClick()
         }
-        viewModel.setSubscribeCallback(albumSubscribe) {
+        viewModel.getSubscribeAlbum(mAlbumSubscribe).observe(viewLifecycleOwner) {
             binding.textSubscribe.text =
-                if (it) {
+                if (!it.isNullOrEmpty()) {
+                    misSubscribe = true
                     "已订阅"
                 } else {
+                    misSubscribe = false
                     "+ 订阅"
                 }
         }
     }
 
     /**
-     * 订阅事件
+     * 订阅按钮点击事件
      */
     private fun onSubscribeClick() {
-        viewModel.subscribe(albumSubscribe)
+        if (misSubscribe) {
+            viewModel.removeSubscribe(mAlbumSubscribe)
+        } else {
+            viewModel.addSubscribe(mAlbumSubscribe)
+        }
     }
 
     /**
@@ -258,7 +265,7 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
      * 加载更多事件回调
      */
     private fun loadMoreListener() {
-        viewModel.getTracks(albumSubscribe.id)
+        viewModel.getTracks(mAlbumSubscribe.id)
     }
 
     inner class MyUILoad : UILoader(requireContext()) {
