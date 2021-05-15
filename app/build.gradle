@@ -131,4 +131,9 @@ dependencies {
     implementation  'com.scwang.smart:refresh-layout-kernel:2.0.3'      //核心必须依赖
 //    implementation  'com.scwang.smart:refresh-header-classics:2.0.3'    //经典刷新头
     implementation  'com.scwang.smart:refresh-footer-classics:2.0.3'    //经典加载
+
+    def paging_version = "3.0.0"//学习使用paging，用于解决数据库内容翻页问题。room+liveData只能跟踪固定的页，翻页需手动实现
+    implementation "androidx.paging:paging-runtime:$paging_version"
+    // alternatively - without Android dependencies for tests
+    testImplementation "androidx.paging:paging-common:$paging_version"
 }

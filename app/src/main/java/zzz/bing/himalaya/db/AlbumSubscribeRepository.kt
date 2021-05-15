@@ -1,6 +1,5 @@
 package zzz.bing.himalaya.db
 
-import androidx.lifecycle.LiveData
 import zzz.bing.himalaya.db.database.AlbumSubscribeDatabase
 import zzz.bing.himalaya.db.entity.AlbumSubscribe
 import zzz.bing.himalaya.utils.fire
@@ -28,21 +27,19 @@ object AlbumSubscribeRepository {
 
     /**
      * 使用页数获得订阅内容
-     * liveData不用挂起，room自动优化
-     * @return LiveData<List<SearchHistory>>
+     * @return List<SearchHistory>
      */
-    fun getAlbumSubscribe(page: Int): LiveData<List<AlbumSubscribe>> {
+    suspend fun getAlbumSubscribe(page: Int): List<AlbumSubscribe> {
         return getAlbumSubscribe(page, pageSize)
     }
 
     /**
      * 使用页数和每页大小获得订阅内容
-     * liveData不用挂起，room自动优化
      * @param page Int
      * @param pageSize Int
-     * @return LiveData<List<AlbumSubscribe>>
+     * @return List<AlbumSubscribe>
      */
-    fun getAlbumSubscribe(page: Int, pageSize: Int): LiveData<List<AlbumSubscribe>> {
+    suspend fun getAlbumSubscribe(page: Int, pageSize: Int): List<AlbumSubscribe> {
         val limit = pageSize
         val offset = (page - 1) * pageSize
         return mAlbumSubscribeDao.findAlbumSubscribeByLimitAndOffset(limit, offset)
@@ -67,9 +64,9 @@ object AlbumSubscribeRepository {
     /**
      * 查询订阅列表，用于判断是否已订阅
      * @param subscribe AlbumSubscribe
-     * @return LiveData<AlbumSubscribe>
+     * @return List<AlbumSubscribe>
      */
-    fun getSubscribe(subscribe: AlbumSubscribe): LiveData<AlbumSubscribe> {
-        return mAlbumSubscribeDao.findAlbumSubscribeByIdWithLiveData(subscribe.id)
+    suspend fun getSubscribe(subscribe: AlbumSubscribe): List<AlbumSubscribe> {
+        return mAlbumSubscribeDao.findAlbumSubscribeById(subscribe.id)
     }
 }

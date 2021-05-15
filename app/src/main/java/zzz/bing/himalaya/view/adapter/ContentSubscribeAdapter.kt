@@ -2,15 +2,15 @@ package zzz.bing.himalaya.view.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import zzz.bing.himalaya.databinding.ItemContentSubscribeBinding
 import zzz.bing.himalaya.db.entity.AlbumSubscribe
 
 class ContentSubscribeAdapter :
-    ListAdapter<AlbumSubscribe, ContentSubscribeAdapter.ContentHomeViewHolder>(
+    PagingDataAdapter<AlbumSubscribe, ContentSubscribeAdapter.ContentHomeViewHolder>(
         object : DiffUtil.ItemCallback<AlbumSubscribe>() {
             override fun areItemsTheSame(oldItem: AlbumSubscribe, newItem: AlbumSubscribe) =
                 oldItem.id == newItem.id
@@ -34,10 +34,10 @@ class ContentSubscribeAdapter :
         val binding = holder.binding
         val item = getItem(position)
 
-        binding.textItemTitle.text = item.title
-        binding.textItemContent.text = item.info
-        binding.textItemContentCount.text = item.trackCount.toString()
-        binding.textPlayCount.text = getPlayCount(item.playCount)
+        binding.textItemTitle.text = item?.title
+        binding.textItemContent.text = item?.info
+        binding.textItemContentCount.text = item?.trackCount.toString()
+        binding.textPlayCount.text = getPlayCount(item?.playCount!!)
 
         item.coverUrl?.also { url ->
             Glide.with(holder.itemView.context)

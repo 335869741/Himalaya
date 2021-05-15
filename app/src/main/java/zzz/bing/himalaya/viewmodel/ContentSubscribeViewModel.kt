@@ -1,23 +1,27 @@
 package zzz.bing.himalaya.viewmodel
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import kotlinx.coroutines.flow.Flow
 import zzz.bing.himalaya.db.AlbumSubscribeRepository
 import zzz.bing.himalaya.db.entity.AlbumSubscribe
+import zzz.bing.himalaya.repository.AlbumSubscribePaging
 
 class ContentSubscribeViewModel : ViewModel() {
 
-    /**
-     * 从数据库中获得数据
-     * @param page Int
-     * @return LiveData<List<AlbumSubscribe>>
-     */
-    fun getAlbum(page: Int): LiveData<List<AlbumSubscribe>> {
-        return AlbumSubscribeRepository.getAlbumSubscribe(page)
+    fun getAlbum(): Flow<PagingData<AlbumSubscribe>> {
+        return Pager(
+            config = PagingConfig(AlbumSubscribeRepository.pageSize),
+            pagingSourceFactory = { AlbumSubscribePaging() }
+        ).flow.cachedIn(viewModelScope)
     }
 
     /**
-     *
+     * 清空订阅
      */
     fun removeAlbum() {
         AlbumSubscribeRepository.removeAllAlbumSubscribe()

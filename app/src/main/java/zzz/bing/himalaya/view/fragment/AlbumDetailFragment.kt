@@ -67,6 +67,8 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
             glide.into(binding.imageBackground)
         }
         viewModel.getTracks(mAlbumSubscribe.id)
+
+        getSubscribe()
     }
 
     override fun initListener() {
@@ -90,16 +92,6 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
         binding.textSubscribe.setOnClickListener {
             onSubscribeClick()
         }
-        viewModel.getSubscribeAlbum(mAlbumSubscribe).observe(viewLifecycleOwner) {
-            binding.textSubscribe.text =
-                if (it != null) {
-                    misSubscribe = true
-                    "已订阅"
-                } else {
-                    misSubscribe = false
-                    "+ 订阅"
-                }
-        }
     }
 
     /**
@@ -111,6 +103,9 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
         } else {
             viewModel.addSubscribe(mAlbumSubscribe)
         }
+        binding.textSubscribe.postDelayed({
+            getSubscribe()
+        }, 100)
     }
 
     /**
@@ -257,6 +252,22 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
      */
     private fun loadMoreListener() {
         viewModel.getTracks(mAlbumSubscribe.id)
+    }
+
+    /**
+     * 根据订阅状态改变ui
+     */
+    fun getSubscribe() {
+        viewModel.getSubscribeAlbum(mAlbumSubscribe) { isSubscribe ->
+            binding.textSubscribe.text =
+                if (isSubscribe) {
+                    misSubscribe = true
+                    "已订阅"
+                } else {
+                    misSubscribe = false
+                    "+ 订阅"
+                }
+        }
     }
 
     inner class MyUILoad : UILoader(requireContext()) {

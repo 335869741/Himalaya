@@ -147,9 +147,12 @@ class AlbumDetailViewModel : ViewModel() {
     /**
      * 查询订阅列表，用于判断是否已订阅
      * @param album AlbumSubscribe
-     * @return LiveData<List<AlbumSubscribe>>
+     * @param block Function0<Boolean -> Unit>
      */
-    fun getSubscribeAlbum(album: AlbumSubscribe): LiveData<AlbumSubscribe> {
-        return AlbumSubscribeRepository.getSubscribe(album)
+    fun getSubscribeAlbum(album: AlbumSubscribe, block: (isSubscribe: Boolean) -> Unit) {
+        viewModelScope.launch {
+            val list = AlbumSubscribeRepository.getSubscribe(album)
+            block(!list.isNullOrEmpty())
+        }
     }
 }
