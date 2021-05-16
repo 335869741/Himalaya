@@ -7,4 +7,6 @@
     <dimen name="player_button_size">50dp</dimen>
     <dimen name="timeSize">40dp</dimen>
     <dimen name="iconSize">24dp</dimen>
+    <dimen name="dialogTitleSize">28sp</dimen>
+    <dimen name="dialogText">24sp</dimen>
 </resources>

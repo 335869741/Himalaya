@@ -1,4 +1,4 @@
-package zzz.bing.himalaya.db
+package zzz.bing.himalaya.repository
 
 import zzz.bing.himalaya.db.database.AlbumSubscribeDatabase
 import zzz.bing.himalaya.db.entity.AlbumSubscribe
@@ -67,6 +67,6 @@ object AlbumSubscribeRepository {
      * @return List<AlbumSubscribe>
      */
     suspend fun getSubscribe(subscribe: AlbumSubscribe): List<AlbumSubscribe> {
-        return mAlbumSubscribeDao.findAlbumSubscribeById(subscribe.id)
+        return mAlbumSubscribeDao.findAlbumSubscribeById(subscribe.albumId)
     }
 }

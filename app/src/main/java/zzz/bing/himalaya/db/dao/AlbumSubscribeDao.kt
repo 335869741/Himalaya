@@ -15,8 +15,8 @@ interface AlbumSubscribeDao {
     @Query("DELETE FROM album_subscribe")
     suspend fun deleteAllAlbumSubscribe()
 
-    @Query("SELECT * FROM album_subscribe where id = :id")
-    suspend fun findAlbumSubscribeById(id: Long): List<AlbumSubscribe>
+    @Query("SELECT * FROM album_subscribe where album_id = :albumId")
+    suspend fun findAlbumSubscribeById(albumId: Long): List<AlbumSubscribe>
 
     @Delete
     suspend fun deleteAlbumSubscribe(vararg searchHistory: AlbumSubscribe)

@@ -66,7 +66,8 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
             glide.into(binding.imageAlbumIcon)
             glide.into(binding.imageBackground)
         }
-        viewModel.getTracks(mAlbumSubscribe.id)
+        viewModel.getTracks(mAlbumSubscribe.albumId)
+        LogUtils.d(this, "Album ==> $mAlbumSubscribe")
 
         getSubscribe()
     }
@@ -257,7 +258,7 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
     /**
      * 根据订阅状态改变ui
      */
-    fun getSubscribe() {
+    private fun getSubscribe() {
         viewModel.getSubscribeAlbum(mAlbumSubscribe) { isSubscribe ->
             binding.textSubscribe.text =
                 if (isSubscribe) {

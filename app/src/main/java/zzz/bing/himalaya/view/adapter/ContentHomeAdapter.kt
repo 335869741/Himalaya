@@ -34,7 +34,7 @@ class ContentHomeAdapter(val fragment: ContentHomeFragment) :
             .inflate(LayoutInflater.from(parent.context), parent, false)
         val contentHomeViewHolder = ContentHomeViewHolder(binding)
         contentHomeViewHolder.itemView.setOnClickListener {
-            val item = getItem(contentHomeViewHolder.adapterPosition)
+            val item = getItem(contentHomeViewHolder.bindingAdapterPosition)
             item.getImageUrl()?.also {
                 fragment.findNavController().navigate(
                     R.id.action_homeFragment_to_detailFragment,
@@ -45,9 +45,9 @@ class ContentHomeAdapter(val fragment: ContentHomeFragment) :
                                 item.albumTitle,
                                 item.albumIntro,
                                 it,
-                                item.id,
                                 item.includeTrackCount,
-                                item.playCount
+                                item.playCount,
+                                item.id
                             )
                         )
                     }

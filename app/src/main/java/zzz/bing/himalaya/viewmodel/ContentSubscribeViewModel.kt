@@ -7,9 +7,9 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import kotlinx.coroutines.flow.Flow
-import zzz.bing.himalaya.db.AlbumSubscribeRepository
 import zzz.bing.himalaya.db.entity.AlbumSubscribe
 import zzz.bing.himalaya.repository.AlbumSubscribePaging
+import zzz.bing.himalaya.repository.AlbumSubscribeRepository
 
 class ContentSubscribeViewModel : ViewModel() {
 
@@ -23,7 +23,11 @@ class ContentSubscribeViewModel : ViewModel() {
     /**
      * 清空订阅
      */
-    fun removeAlbum() {
+    fun clearAlbum() {
         AlbumSubscribeRepository.removeAllAlbumSubscribe()
+    }
+
+    fun removeAlbum(albumSubscribe: AlbumSubscribe) {
+        AlbumSubscribeRepository.removeAlbumSubscribe(albumSubscribe)
     }
 }

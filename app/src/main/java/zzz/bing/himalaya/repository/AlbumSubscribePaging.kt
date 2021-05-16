@@ -2,12 +2,11 @@ package zzz.bing.himalaya.repository
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import zzz.bing.himalaya.db.AlbumSubscribeRepository
 import zzz.bing.himalaya.db.entity.AlbumSubscribe
 
 class AlbumSubscribePaging : PagingSource<Int, AlbumSubscribe>() {
     override fun getRefreshKey(state: PagingState<Int, AlbumSubscribe>): Int? {
-        return null
+        return state.anchorPosition
     }
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, AlbumSubscribe> {

@@ -1,15 +1,19 @@
 package zzz.bing.himalaya.view.fragment
 
+import android.os.Bundle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import zzz.bing.himalaya.BaseFragment
+import zzz.bing.himalaya.R
 import zzz.bing.himalaya.databinding.FragmentContentSubscribeBinding
-import zzz.bing.himalaya.utils.LogUtils
+import zzz.bing.himalaya.db.entity.AlbumSubscribe
 import zzz.bing.himalaya.view.adapter.ContentSubscribeAdapter
 import zzz.bing.himalaya.viewmodel.ContentSubscribeViewModel
+import zzz.bing.himalaya.views.DialogSubscribe
 
 class ContentSubscribeFragment :
     BaseFragment<FragmentContentSubscribeBinding, ContentSubscribeViewModel>() {
@@ -25,23 +29,17 @@ class ContentSubscribeFragment :
         mSubscribeAdapter = ContentSubscribeAdapter()
         binding.root.adapter = mSubscribeAdapter
         binding.root.layoutManager = LinearLayoutManager(requireContext())
-        lifecycleScope.launch {
-            viewModel.getAlbum().collect { pagingData ->
-                mSubscribeAdapter.submitData(pagingData)
-            }
-        }
     }
 
     override fun initListener() {
-        mSubscribeAdapter.setBindingEvent {
-            it.root.setOnClickListener {
-                itemClick()
+        mSubscribeAdapter.setClickEvent {
+            it?.also { album ->
+                itemClick(album)
             }
-            it.root.setOnTouchListener { _, event ->
-                if (event.downTime > 1000) {
-                    itemOnLongTouCh()
-                }
-                false
+        }
+        mSubscribeAdapter.setLongPressEvent {
+            it?.also { album ->
+                itemOnLongTouCh(album)
             }
         }
     }
@@ -52,20 +50,37 @@ class ContentSubscribeFragment :
 
     override fun onResume() {
         super.onResume()
+        getData()
     }
 
     /**
      * 长按事件
      */
-    private fun itemOnLongTouCh() {
-
+    private fun itemOnLongTouCh(item: AlbumSubscribe) {
+        DialogSubscribe(requireContext())
+            .setSubmitClickListener {
+                viewModel.removeAlbum(item)
+                binding.root.postDelayed({ mSubscribeAdapter.refresh() }, 100)
+                it.dismiss()
+            }.setCancelClickListener {
+                it.dismiss()
+            }.show()
     }
 
     /**
      * 点击事件
      */
-    private fun itemClick() {
-        viewModel.removeAlbum()
-        LogUtils.d(this, "click")
+    private fun itemClick(item: AlbumSubscribe) {
+        findNavController().navigate(R.id.action_homeFragment_to_detailFragment,
+            Bundle().apply { putParcelable(AlbumDetailFragment.ACTION_ALBUM, item) }
+        )
+    }
+
+    private fun getData() {
+        lifecycleScope.launch {
+            viewModel.getAlbum().collect { pagingData ->
+                mSubscribeAdapter.submitData(pagingData)
+            }
+        }
     }
 }

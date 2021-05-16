@@ -8,8 +8,8 @@ import com.ximalaya.ting.android.opensdk.model.PlayableModel
 import com.ximalaya.ting.android.opensdk.model.track.Track
 import com.ximalaya.ting.android.opensdk.model.track.TrackList
 import kotlinx.coroutines.*
-import zzz.bing.himalaya.db.AlbumSubscribeRepository
 import zzz.bing.himalaya.db.entity.AlbumSubscribe
+import zzz.bing.himalaya.repository.AlbumSubscribeRepository
 import zzz.bing.himalaya.repository.PlayerManager
 import zzz.bing.himalaya.utils.LogUtils
 import zzz.bing.himalaya.utils.onReverse

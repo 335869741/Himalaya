@@ -12,17 +12,19 @@ data class AlbumSubscribe(
     @ColumnInfo(name = "info") var info: String,
     @ColumnInfo(name = "cover_url") var coverUrl: String?,
     @ColumnInfo(name = "track_count") var trackCount: Long,
-    @ColumnInfo(name = "play_count") var playCount: Long
+    @ColumnInfo(name = "play_count") var playCount: Long,
+    @ColumnInfo(name = "album_id") var albumId: Long
 ) : Parcelable {
     constructor(
         title: String,
         info: String,
         coverUrl: String?,
-        id: Long,
         trackCount: Long,
-        playCount: Long
+        playCount: Long,
+        albumId: Long,
+        id: Long
     )
-            : this(title, info, coverUrl, trackCount, playCount) {
+            : this(title, info, coverUrl, trackCount, playCount, albumId) {
         this.id = id
     }
 
@@ -35,6 +37,7 @@ data class AlbumSubscribe(
         parcel.readString()!!,
         parcel.readString(),
         parcel.readLong(),
+        parcel.readLong(),
         parcel.readLong()
     ) {
         id = parcel.readLong()
@@ -46,6 +49,7 @@ data class AlbumSubscribe(
         parcel.writeString(coverUrl)
         parcel.writeLong(trackCount)
         parcel.writeLong(playCount)
+        parcel.writeLong(albumId)
         parcel.writeLong(id)
     }
 

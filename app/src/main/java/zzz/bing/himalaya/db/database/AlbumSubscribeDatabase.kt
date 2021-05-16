@@ -18,7 +18,7 @@ abstract class AlbumSubscribeDatabase : RoomDatabase() {
     abstract fun userAlbumSubscribeDao(): AlbumSubscribeDao
 
     companion object {
-        const val ALBUM_SUBSCRIBE_DATABASE_VERSION = 2
+        const val ALBUM_SUBSCRIBE_DATABASE_VERSION = 3
 
         private var instance: AlbumSubscribeDatabase? = null
 
@@ -31,8 +31,10 @@ abstract class AlbumSubscribeDatabase : RoomDatabase() {
                             AlbumSubscribeDatabase::class.java,
                             "user_album_subscribe_database.db"
                         )
-                            .addMigrations(migration_1_2)
-                            .build()
+                            .addMigrations(
+                                migration_1_2,
+                                migration_2_3
+                            ).build()
                     }
                 }
             }
@@ -46,5 +48,33 @@ abstract class AlbumSubscribeDatabase : RoomDatabase() {
                 database.execSQL("ALTER TABLE album_subscribe ADD COLUMN play_count INTEGER NOT NULL DEFAULT 0")
             }
         }
+
+        @JvmStatic
+        val migration_2_3 = object : Migration(2, 3) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(migration_2_3_temp_sql)
+                database.execSQL(migration_2_3_insert_sql)
+                database.execSQL("DROP TABLE album_subscribe")
+                database.execSQL("ALTER TABLE album_temp RENAME TO album_subscribe")
+            }
+        }
+        val migration_2_3_temp_sql = """
+            CREATE TABLE album_temp(
+                id INTEGER PRIMARY KEY NOT NULL,
+                title TEXT NOT NULL,
+                info TEXT NOT NULL,
+                cover_url TEXT DEFAULT NULL,
+                track_count INTEGER NOt NULL DEFAULT 0,
+                play_count INTEGER NOt NULL DEFAULT 0,
+                album_id INTEGER NOt NULL DEFAULT 0
+            )
+        """.trimIndent()
+        val migration_2_3_insert_sql = """
+            INSERT INTO album_temp(
+                id, title, info, cover_url, track_count, play_count, album_id)
+            SELECT id, title, info, cover_url, track_count, play_count, id 
+            FROM album_subscribe
+        """.trimIndent()
     }
 }
+

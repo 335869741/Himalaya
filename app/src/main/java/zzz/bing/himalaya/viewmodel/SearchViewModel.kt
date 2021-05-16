@@ -15,7 +15,7 @@ import com.ximalaya.ting.android.opensdk.model.word.QueryResult
 import com.ximalaya.ting.android.opensdk.model.word.SuggestWords
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import zzz.bing.himalaya.db.SearchHistoryRepository
+import zzz.bing.himalaya.repository.SearchHistoryRepository
 import zzz.bing.himalaya.utils.LogUtils
 import zzz.bing.himalaya.views.UILoader
 

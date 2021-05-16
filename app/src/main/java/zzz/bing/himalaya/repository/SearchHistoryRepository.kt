@@ -1,4 +1,4 @@
-package zzz.bing.himalaya.db
+package zzz.bing.himalaya.repository
 
 import androidx.lifecycle.LiveData
 import zzz.bing.himalaya.db.database.SearchHistoryDatabase

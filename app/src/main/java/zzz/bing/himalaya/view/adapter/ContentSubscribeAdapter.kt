@@ -20,14 +20,15 @@ class ContentSubscribeAdapter :
         }
     ) {
 
-    private var mBindingSetEvent: ((ItemContentSubscribeBinding) -> Unit)? = null
+    private var mLongPressEvent: ((AlbumSubscribe?) -> Unit)? = null
+    private var mClickEvent: ((AlbumSubscribe?) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContentHomeViewHolder {
         val binding = ItemContentSubscribeBinding
             .inflate(LayoutInflater.from(parent.context), parent, false)
-        binding.also { mBindingSetEvent?.apply { this(it) } }
-
-        return ContentHomeViewHolder(binding)
+        val holder = ContentHomeViewHolder(binding)
+        setListener(holder)
+        return holder
     }
 
     override fun onBindViewHolder(holder: ContentHomeViewHolder, position: Int) {
@@ -47,11 +48,33 @@ class ContentSubscribeAdapter :
     }
 
     /**
-     * item绑定事件
-     * @param block Function1<ItemContentSubscribeBinding, Unit>
+     * 设置监听器
+     * @param holder ContentHomeViewHolder
      */
-    fun setBindingEvent(block: (ItemContentSubscribeBinding) -> Unit) {
-        mBindingSetEvent = block
+    private fun setListener(holder: ContentHomeViewHolder) {
+        holder.itemView.setOnClickListener {
+            mClickEvent?.also { it(getItem(holder.bindingAdapterPosition)) }
+        }
+        holder.itemView.setOnLongClickListener {
+            mLongPressEvent?.also { it(getItem(holder.bindingAdapterPosition)) }
+            false
+        }
+    }
+
+    /**
+     * 点击事件
+     * @param block Function1<AlbumSubscribe? -> Unit>
+     */
+    fun setClickEvent(block: (AlbumSubscribe?) -> Unit) {
+        mClickEvent = block
+    }
+
+    /**
+     * 长按事件
+     * @param block Function1<AlbumSubscribe? -> Unit>
+     */
+    fun setLongPressEvent(block: (AlbumSubscribe?) -> Unit) {
+        mLongPressEvent = block
     }
 
     /**
