@@ -8,6 +8,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.paging.CombinedLoadStates
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import zzz.bing.himalaya.BaseFragment
@@ -83,7 +84,14 @@ class ContentSubscribeFragment :
         DialogSubscribe(requireContext())
             .setSubmitClickListener {
                 viewModel.removeAlbum(item)
-                binding.root.postDelayed({ mSubscribeAdapter.refresh() }, 100)
+                binding.root.postDelayed({
+                    mSubscribeAdapter.refresh()
+                    Snackbar.make(binding.root, "删除了一个订阅的专辑", Snackbar.LENGTH_LONG)
+                        .setAction("撤销") {
+                            viewModel.addSubscribe(item)
+                            binding.root.post { mSubscribeAdapter.refresh() }
+                        }.show()
+                }, 100)
                 it.dismiss()
             }.setCancelClickListener {
                 it.dismiss()

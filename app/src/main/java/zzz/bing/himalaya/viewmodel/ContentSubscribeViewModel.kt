@@ -13,6 +13,10 @@ import zzz.bing.himalaya.repository.AlbumSubscribeRepository
 
 class ContentSubscribeViewModel : ViewModel() {
 
+    /**
+     * 将pager转化为flow，使用viewModelScope缓存
+     * @return Flow<PagingData<AlbumSubscribe>>
+     */
     fun getAlbum(): Flow<PagingData<AlbumSubscribe>> {
         return Pager(
             config = PagingConfig(AlbumSubscribeRepository.pageSize),
@@ -21,12 +25,17 @@ class ContentSubscribeViewModel : ViewModel() {
     }
 
     /**
-     * 清空订阅
+     * 添加订阅
+     * @param subscribe AlbumSubscribe
      */
-    fun clearAlbum() {
-        AlbumSubscribeRepository.removeAllAlbumSubscribe()
+    fun addSubscribe(subscribe: AlbumSubscribe) {
+        AlbumSubscribeRepository.addAlbumSubscribe(subscribe)
     }
 
+    /**
+     * 删除订阅
+     * @param albumSubscribe AlbumSubscribe
+     */
     fun removeAlbum(albumSubscribe: AlbumSubscribe) {
         AlbumSubscribeRepository.removeAlbumSubscribe(albumSubscribe)
     }
