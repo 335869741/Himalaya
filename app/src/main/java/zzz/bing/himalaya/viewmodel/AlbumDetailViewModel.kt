@@ -33,9 +33,10 @@ class AlbumDetailViewModel : ViewModel() {
 
     /**
      * 用id获得详情
-     * @param id Long
+     * @param albumId Long
      */
-    fun getTracks(id: Long) {
+    fun getTracks(albumId: Long) {
+        val id = setID(albumId)
         if (mPage > 1) {
             netState.value = UILoader.UIStatus.LOAD_MORE
         } else {
@@ -43,7 +44,7 @@ class AlbumDetailViewModel : ViewModel() {
         }
         CommonRequest.getTracks(
             HashMap<String, String>().apply {
-                put(DTransferConstants.ALBUM_ID, setID(id))
+                put(DTransferConstants.ALBUM_ID, id)
                 put(DTransferConstants.PAGE, mPage.toString())
             },
             object : IDataCallBack<TrackList> {
@@ -118,11 +119,22 @@ class AlbumDetailViewModel : ViewModel() {
      * @return String
      */
     private fun setID(id: Long): String {
-        if (id != mSearchId) {
+        if (id == mSearchId) {
+            mPage++
+        } else {
             mPage = 1
+            mSearchId = id
         }
-        mSearchId = id
         return mSearchId.toString()
+    }
+
+    /**
+     * 防止重新进入时会跳过第一页
+     * 必须在getTracks()之前调用
+     */
+    fun pageClear() {
+        mSearchId = 0
+        mPage = 1
     }
 
     fun stop() = playerManager.stop()

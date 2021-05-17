@@ -66,10 +66,12 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
             glide.into(binding.imageAlbumIcon)
             glide.into(binding.imageBackground)
         }
-        viewModel.getTracks(mAlbumSubscribe.albumId)
         LogUtils.d(this, "Album ==> $mAlbumSubscribe")
 
         getSubscribe()
+
+        viewModel.pageClear()
+        viewModel.getTracks(mAlbumSubscribe.albumId)
     }
 
     override fun initListener() {
@@ -252,7 +254,7 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
      * 加载更多事件回调
      */
     private fun loadMoreListener() {
-        viewModel.getTracks(mAlbumSubscribe.id)
+        viewModel.getTracks(mAlbumSubscribe.albumId)
     }
 
     /**
