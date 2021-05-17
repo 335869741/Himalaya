@@ -1,9 +1,12 @@
 package zzz.bing.himalaya.view.fragment
 
 import android.os.Bundle
+import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.paging.CombinedLoadStates
+import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -27,8 +30,8 @@ class ContentSubscribeFragment :
 
     override fun initView() {
         mSubscribeAdapter = ContentSubscribeAdapter()
-        binding.root.adapter = mSubscribeAdapter
-        binding.root.layoutManager = LinearLayoutManager(requireContext())
+        binding.recycler.adapter = mSubscribeAdapter
+        binding.recycler.layoutManager = LinearLayoutManager(requireContext())
     }
 
     override fun initListener() {
@@ -41,6 +44,26 @@ class ContentSubscribeFragment :
             it?.also { album ->
                 itemOnLongTouCh(album)
             }
+        }
+        mSubscribeAdapter.addLoadStateListener { loadState ->
+            viewIsEmpty(loadState)
+        }
+    }
+
+    /**
+     * 判断是否有数据
+     * @param loadState CombinedLoadStates
+     */
+    private fun viewIsEmpty(loadState: CombinedLoadStates) {
+        if (loadState.source.refresh is LoadState.NotLoading
+            && loadState.append.endOfPaginationReached
+            && mSubscribeAdapter.itemCount < 1
+        ) {
+            binding.recycler.isVisible = false
+            binding.layoutEmpty.root.isVisible = true
+        } else {
+            binding.recycler.isVisible = true
+            binding.layoutEmpty.root.isVisible = false
         }
     }
 
@@ -76,6 +99,9 @@ class ContentSubscribeFragment :
         )
     }
 
+    /**
+     * 获得数据
+     */
     private fun getData() {
         lifecycleScope.launch {
             viewModel.getAlbum().collect { pagingData ->
