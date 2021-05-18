@@ -141,9 +141,9 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
                                 it.albumTitle,
                                 it.albumIntro,
                                 url,
-                                it.id,
                                 it.includeTrackCount,
-                                it.playCount
+                                it.playCount,
+                                it.id
                             )
                         )
                     }
