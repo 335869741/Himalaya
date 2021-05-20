@@ -3,12 +3,10 @@ package zzz.bing.himalaya.view.adapter
 import android.icu.text.SimpleDateFormat
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.ximalaya.ting.android.opensdk.model.track.Track
-import zzz.bing.himalaya.R
 import zzz.bing.himalaya.databinding.ItemAlbumDetailBinding
 import zzz.bing.himalaya.utils.timeUtil
 import zzz.bing.himalaya.view.fragment.AlbumDetailFragment
@@ -26,17 +24,25 @@ class AlbumDetailAdapter(private val albumDetailFragment: AlbumDetailFragment) :
             }
         }
     ) {
+
+    private var itemClick: ((DetailViewHolder) -> Unit)? = null
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DetailViewHolder {
         val binding =
             ItemAlbumDetailBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         val detailViewHolder = DetailViewHolder(binding)
         detailViewHolder.itemView.setOnClickListener { //itemView ->
-            albumDetailFragment.findNavController().also { navController ->
-                albumDetailFragment.putPlayList(currentList, detailViewHolder.adapterPosition)
-                navController.navigate(R.id.action_detailFragment_to_playerFragment)
-            }
+            itemClick?.also { it(detailViewHolder) }
         }
         return detailViewHolder
+    }
+
+    /**
+     * 设置点击事件
+     * @param block Function1<DetailViewHolder -> Unit>
+     */
+    fun setItemClickEvent(block: (holder: DetailViewHolder) -> Unit) {
+        itemClick = block
     }
 
     override fun onBindViewHolder(holder: DetailViewHolder, position: Int) {

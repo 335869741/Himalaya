@@ -60,8 +60,14 @@ class ContentSubscribeFragment :
             && loadState.append.endOfPaginationReached
             && mSubscribeAdapter.itemCount < 1
         ) {
-            binding.recycler.isVisible = false
-            binding.layoutEmpty.root.isVisible = true
+            binding.recycler.postDelayed(
+                {
+                    if (mSubscribeAdapter.itemCount < 1) {
+                        binding.recycler.isVisible = false
+                        binding.layoutEmpty.root.isVisible = true
+                    }
+                }, 100
+            )
         } else {
             binding.recycler.isVisible = true
             binding.layoutEmpty.root.isVisible = false
@@ -72,9 +78,13 @@ class ContentSubscribeFragment :
 
     }
 
+    override fun initData() {
+        getData()
+    }
+
     override fun onResume() {
         super.onResume()
-        getData()
+        mSubscribeAdapter.refresh()
     }
 
     /**

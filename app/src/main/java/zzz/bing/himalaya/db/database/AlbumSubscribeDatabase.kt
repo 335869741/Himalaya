@@ -22,7 +22,7 @@ abstract class AlbumSubscribeDatabase : RoomDatabase() {
 
         private var instance: AlbumSubscribeDatabase? = null
 
-        fun getSearchHistoryDatabase(): AlbumSubscribeDatabase {
+        fun getAlbumSubscribeDatabase(): AlbumSubscribeDatabase {
             if (instance == null) {
                 synchronized(AlbumSubscribeDatabase::class.java) {
                     if (instance == null) {

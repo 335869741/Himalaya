@@ -36,11 +36,6 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
     private var mInit = false
     private var mProgress = 0
 
-    /**
-     * 使用懒加载初始化
-     * 同时设定监听
-     * create时初始化会导致高度值为0
-     */
     private val mPopupPlayListAdapter by lazy { PopupPlayListAdapter(this) }
 
     override fun initViewModel() = ViewModelProvider(this).get(PlayerViewModel::class.java)
@@ -342,6 +337,7 @@ class PlayerFragment : BaseFragment<FragmentPlayerBinding, PlayerViewModel>() {
             binding.textPlayerTitle.text = curModel.trackTitle
             val position = viewModel.playList.value.let {
                 val index = it?.trackSearch(curModel.dataId)
+                curModel.album?.albumId
                 if (index != null && index != -1) {
                     index
                 } else {

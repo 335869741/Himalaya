@@ -25,4 +25,5 @@
     <string name="imageBackground">背景图片</string>
     <string name="minutesTime">%s:%s</string>
     <string name="textExit">关闭</string>
+    <string name="textHistoryHint">上次播放到第%s集</string>
 </resources>

@@ -4,6 +4,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -25,6 +26,7 @@ import zzz.bing.himalaya.view.adapter.AlbumDetailAdapter
 import zzz.bing.himalaya.viewmodel.AlbumDetailViewModel
 import zzz.bing.himalaya.views.UILoader
 
+@Suppress("MemberVisibilityCanBePrivate")
 class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetailViewModel>() {
 
     companion object {
@@ -94,6 +96,16 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
         }
         binding.textSubscribe.setOnClickListener {
             onSubscribeClick()
+        }
+        mAlbumDetailAdapter.setItemClickEvent {
+            val position = it.bindingAdapterPosition
+            findNavController().also { navController ->
+                putPlayList(
+                    mAlbumDetailAdapter.currentList,
+                    position
+                )
+                navController.navigate(R.id.action_detailFragment_to_playerFragment)
+            }
         }
     }
 
@@ -229,6 +241,7 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
      */
     fun putPlayList(list: List<Track>, position: Int) {
         viewModel.putPlayList(list, position)
+        addHistory(position)
     }
 
     /**
@@ -237,7 +250,16 @@ class AlbumDetailFragment : BaseFragment<FragmentAlbumDetailBinding, AlbumDetail
      * 没有时设为0
      */
     private fun putPlayList() {
-        viewModel.onPlayForPlayList()
+        val position = viewModel.onPlayForPlayList()
+        addHistory(position)
+    }
+
+    /**
+     * 播放的位置
+     * @param position Int
+     */
+    private fun addHistory(position: Int) {
+        viewModel.addHistory(position, mAlbumSubscribe)
     }
 
     /**

@@ -7,7 +7,7 @@ import zzz.bing.himalaya.utils.fire
 @Suppress("MemberVisibilityCanBePrivate")
 object AlbumSubscribeRepository {
     private val mAlbumSubscribeDao by lazy {
-        AlbumSubscribeDatabase.getSearchHistoryDatabase().userAlbumSubscribeDao()
+        AlbumSubscribeDatabase.getAlbumSubscribeDatabase().userAlbumSubscribeDao()
     }
 
     var pageSize = 10
@@ -43,14 +43,6 @@ object AlbumSubscribeRepository {
         val limit = pageSize
         val offset = (page - 1) * pageSize
         return mAlbumSubscribeDao.findAlbumSubscribeByLimitAndOffset(limit, offset)
-    }
-
-    /**
-     * 删除所有的订阅
-     * @return Job
-     */
-    fun removeAllAlbumSubscribe() = fire {
-        mAlbumSubscribeDao.deleteAllAlbumSubscribe()
     }
 
     /**

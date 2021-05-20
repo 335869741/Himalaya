@@ -8,7 +8,9 @@ import com.ximalaya.ting.android.opensdk.model.PlayableModel
 import com.ximalaya.ting.android.opensdk.model.track.Track
 import com.ximalaya.ting.android.opensdk.model.track.TrackList
 import kotlinx.coroutines.*
+import zzz.bing.himalaya.db.entity.AlbumHistory
 import zzz.bing.himalaya.db.entity.AlbumSubscribe
+import zzz.bing.himalaya.repository.AlbumHistoryRepository
 import zzz.bing.himalaya.repository.AlbumSubscribeRepository
 import zzz.bing.himalaya.repository.PlayerManager
 import zzz.bing.himalaya.utils.LogUtils
@@ -93,22 +95,27 @@ class AlbumDetailViewModel : ViewModel() {
     /**
      * 使用已有的播放列表继续播放或播放当前列表
      */
-    fun onPlayForPlayList() {
-        trackLiveData.value?.apply {
-            val tracks = playerManager.playList.value ?: emptyList()
-            if (tracks.isEmpty()) {
-                putPlayList(this, 0)
-            } else {
-                if (this.first().dataId != tracks.first().dataId && this.first().dataId != tracks.last().dataId) {
-                    putPlayList(this, 0)
-                } else {
-                    if (this.size > tracks.size) {
-                        val playList =
-                            if (this.first().dataId == tracks.last().dataId) this.onReverse() else this
-                        val index = tracks.trackSearch(playerManager.playManager.currSound.dataId)
-                        putPlayList(playList, index)
-                    }
-                }
+    fun onPlayForPlayList(): Int {
+        val tracks = playerManager.playList.value ?: emptyList()
+        val trackList = trackLiveData.value!!
+        return when {
+            tracks.isEmpty() -> {
+                putPlayList(trackList, 0)
+                0 //空的直接提交
+            }
+            trackList.first().dataId != tracks.first().dataId && trackList.first().dataId != tracks.last().dataId -> {
+                putPlayList(trackList, 0)
+                0 //不同的直接提交
+            }
+            trackList.size > tracks.size -> {
+                val playList =
+                    if (trackList.first().dataId == tracks.last().dataId) trackList.onReverse() else trackList
+                val index = tracks.trackSearch(playerManager.playManager.currSound.dataId)
+                putPlayList(playList, index)
+                index //新列表数量大于旧列表，表示已刷新，提交并保留原有位置
+            }
+            else -> { //其他情况不需要操作
+                tracks.trackSearch(playerManager.playManager.currSound.dataId)
             }
         }
     }
@@ -166,5 +173,22 @@ class AlbumDetailViewModel : ViewModel() {
             val list = AlbumSubscribeRepository.getSubscribe(album)
             block(!list.isNullOrEmpty())
         }
+    }
+
+    /**
+     * 添加历史
+     * @param position Int
+     * @param album AlbumSubscribe
+     */
+    fun addHistory(position: Int, album: AlbumSubscribe) {
+        AlbumHistoryRepository.addAlbumHistory(
+            AlbumHistory(
+                album.title,
+                album.info,
+                album.coverUrl,
+                position,
+                album.albumId
+            )
+        )
     }
 }

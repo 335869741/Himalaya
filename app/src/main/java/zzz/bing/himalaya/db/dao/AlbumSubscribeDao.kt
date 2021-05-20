@@ -12,14 +12,11 @@ interface AlbumSubscribeDao {
     @Insert
     suspend fun insertAlbumSubscribe(vararg albumSubscribe: AlbumSubscribe)
 
-    @Query("DELETE FROM album_subscribe")
-    suspend fun deleteAllAlbumSubscribe()
-
     @Query("SELECT * FROM album_subscribe where album_id = :albumId")
     suspend fun findAlbumSubscribeById(albumId: Long): List<AlbumSubscribe>
 
     @Delete
-    suspend fun deleteAlbumSubscribe(vararg searchHistory: AlbumSubscribe)
+    suspend fun deleteAlbumSubscribe(vararg albumSubscribe: AlbumSubscribe)
 
     @Query("SELECT * FROM album_subscribe ORDER BY id DESC LIMIT :mLimit OFFSET :mOffset")
     suspend fun findAlbumSubscribeByLimitAndOffset(
