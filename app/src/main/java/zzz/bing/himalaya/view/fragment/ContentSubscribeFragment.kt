@@ -82,8 +82,8 @@ class ContentSubscribeFragment :
         getData()
     }
 
-    override fun onResume() {
-        super.onResume()
+    override fun onStart() {
+        super.onStart()
         mSubscribeAdapter.refresh()
     }
 
@@ -101,7 +101,7 @@ class ContentSubscribeFragment :
                             viewModel.addSubscribe(item)
                             binding.root.post { mSubscribeAdapter.refresh() }
                         }.show()
-                }, 100)
+                }, 150)
                 it.dismiss()
             }.setCancelClickListener {
                 it.dismiss()
