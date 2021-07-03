@@ -82,9 +82,9 @@ class ContentSubscribeFragment :
         getData()
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onResume() {
         mSubscribeAdapter.refresh()
+        super.onResume()
     }
 
     /**

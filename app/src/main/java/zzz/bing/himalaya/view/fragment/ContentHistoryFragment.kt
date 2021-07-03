@@ -54,9 +54,9 @@ class ContentHistoryFragment :
         }
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onResume() {
         mHistoryAdapter.refresh()
+        super.onResume()
     }
 
     /**
