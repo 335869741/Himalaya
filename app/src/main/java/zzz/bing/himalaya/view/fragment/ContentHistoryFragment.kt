@@ -1,9 +1,12 @@
 package zzz.bing.himalaya.view.fragment
 
 import android.os.Bundle
+import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.paging.CombinedLoadStates
+import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -30,6 +33,7 @@ class ContentHistoryFragment :
     }
 
     override fun initListener() {
+        // 点击事件
         mHistoryAdapter.setItemClickEvent {
             val item = it.item!!
             val subscribe = AlbumSubscribe(
@@ -43,6 +47,38 @@ class ContentHistoryFragment :
                 R.id.action_homeFragment_to_detailFragment,
                 Bundle().apply { putParcelable(AlbumDetailFragment.ACTION_ALBUM, subscribe) }
             )
+        }
+        // 监听适配器状态变化
+        mHistoryAdapter.addLoadStateListener { loadState ->
+            viewIsEmpty(loadState)
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        mHistoryAdapter.refresh()
+    }
+
+    /**
+     * 判断是否有数据
+     * @param loadState CombinedLoadStates
+     */
+    private fun viewIsEmpty(loadState: CombinedLoadStates) {
+        if (loadState.source.refresh is LoadState.NotLoading
+            && loadState.append.endOfPaginationReached
+            && mHistoryAdapter.itemCount < 1
+        ) {
+            binding.recycler.postDelayed(
+                {
+                    if (mHistoryAdapter.itemCount < 1) {
+                        binding.recycler.isVisible = false
+                        binding.layoutEmpty.root.isVisible = true
+                    }
+                }, 100
+            )
+        } else {
+            binding.recycler.isVisible = true
+            binding.layoutEmpty.root.isVisible = false
         }
     }
 
