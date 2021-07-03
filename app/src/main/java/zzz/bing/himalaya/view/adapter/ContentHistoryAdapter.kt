@@ -42,6 +42,7 @@ class ContentHistoryAdapter :
     override fun onBindViewHolder(holder: ContentHistoryViewHolder, position: Int) {
         val binding = holder.binding
         val item = getItem(position)
+        holder.item = item
 
         binding.textItemTitle.text = item?.title
         binding.textItemContent.text = item?.info
@@ -57,5 +58,7 @@ class ContentHistoryAdapter :
     }
 
     inner class ContentHistoryViewHolder(val binding: ItemContentHistoryBinding) :
-        RecyclerView.ViewHolder(binding.root)
+        RecyclerView.ViewHolder(binding.root) {
+        var item: AlbumHistory? = null
+    }
 }
